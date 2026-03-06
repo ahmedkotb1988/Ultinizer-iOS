@@ -14,6 +14,7 @@ struct ProfileScreen: View {
     @State private var biometricEnabled = false
     @State private var biometricAvailable = false
     @State private var biometricType = "Biometric"
+    @State private var biometricLoaded = false
     @State private var safariURL: URL?
     @State private var showPhotoSourceSheet = false
     @State private var showCamera = false
@@ -231,6 +232,7 @@ struct ProfileScreen: View {
                 biometricType = type
             }
             biometricEnabled = container.userDefaultsService.getBool(forKey: UserDefaultsService.Keys.biometricEnabled)
+            biometricLoaded = true
         }
         .confirmationDialog("Change Profile Photo", isPresented: $showPhotoSourceSheet, titleVisibility: .visible) {
             Button("Take Photo") {
@@ -402,6 +404,7 @@ struct ProfileScreen: View {
                             .labelsHidden()
                             .accessibilityLabel("\(biometricType) Unlock, \(biometricEnabled ? "enabled" : "disabled")")
                             .onChange(of: biometricEnabled) { _, newValue in
+                                guard biometricLoaded else { return }
                                 Task {
                                     if newValue {
                                         // Verify identity before enabling
