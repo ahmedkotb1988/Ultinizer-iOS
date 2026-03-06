@@ -70,7 +70,9 @@ final class AuthManager {
             // Try to fetch household
             if freshUser.householdId != nil {
                 do {
-                    household = try await householdRepository.getMyHousehold()
+                    let hh = try await householdRepository.getMyHousehold()
+                    household = hh
+                    cacheHousehold(hh)
                 } catch {
                     // No household or error - that's ok
                 }
@@ -88,29 +90,30 @@ final class AuthManager {
         awaitingBiometric = false
         defer { isLoading = false }
 
-        do {
-            // Try to load cached user first
-            if let data = userDefaultsService.getData(forKey: UserDefaultsService.Keys.cachedUser),
-               let cached = try? JSONDecoder().decode(UserDTO.self, from: data) {
-                user = UserMapper.map(cached)
-            }
+        // Load cached user and household so the app is usable immediately
+        if let data = userDefaultsService.getData(forKey: UserDefaultsService.Keys.cachedUser),
+           let cached = try? JSONDecoder().decode(UserDTO.self, from: data) {
+            user = UserMapper.map(cached)
+        }
+        if let hhData = userDefaultsService.getData(forKey: UserDefaultsService.Keys.cachedHousehold),
+           let cachedHH = try? JSONDecoder().decode(HouseholdDTO.self, from: hhData) {
+            household = HouseholdMapper.map(cachedHH)
+        }
 
-            // Fetch fresh data
+        // Try to fetch fresh data — don't wipe cached data on failure
+        do {
             let freshUser = try await getMeUseCase.execute()
             user = freshUser
             cacheUser(freshUser)
 
             if freshUser.householdId != nil {
-                do {
-                    household = try await householdRepository.getMyHousehold()
-                } catch {
-                    // No household or error - that's ok
+                if let hh = try? await householdRepository.getMyHousehold() {
+                    household = hh
+                    cacheHousehold(hh)
                 }
             }
         } catch {
-            // Token invalid — fall back to manual login
-            user = nil
-            household = nil
+            // Network error — keep cached user/household if we have them
         }
     }
 
@@ -119,6 +122,7 @@ final class AuthManager {
         user = result.user
         household = result.household
         cacheUser(result.user)
+        if let hh = result.household { cacheHousehold(hh) }
         return result
     }
 
@@ -127,6 +131,7 @@ final class AuthManager {
         user = result.user
         household = result.household
         cacheUser(result.user)
+        if let hh = result.household { cacheHousehold(hh) }
         return result
     }
 
@@ -136,6 +141,7 @@ final class AuthManager {
         household = nil
         awaitingBiometric = false
         userDefaultsService.remove(forKey: UserDefaultsService.Keys.cachedUser)
+        userDefaultsService.remove(forKey: UserDefaultsService.Keys.cachedHousehold)
         userDefaultsService.remove(forKey: UserDefaultsService.Keys.biometricEnabled)
     }
 
@@ -144,6 +150,7 @@ final class AuthManager {
         user = nil
         household = nil
         userDefaultsService.remove(forKey: UserDefaultsService.Keys.cachedUser)
+        userDefaultsService.remove(forKey: UserDefaultsService.Keys.cachedHousehold)
         userDefaultsService.remove(forKey: UserDefaultsService.Keys.biometricEnabled)
         userDefaultsService.remove(forKey: UserDefaultsService.Keys.onboardingCompleted)
     }
@@ -164,7 +171,10 @@ final class AuthManager {
             user = freshUser
             cacheUser(freshUser)
             if freshUser.householdId != nil {
-                household = try? await householdRepository.getMyHousehold()
+                if let hh = try? await householdRepository.getMyHousehold() {
+                    household = hh
+                    cacheHousehold(hh)
+                }
             }
         } catch {
             // Silent failure for refresh
@@ -188,6 +198,29 @@ final class AuthManager {
         )
         if let data = try? JSONEncoder().encode(dto) {
             userDefaultsService.setData(data, forKey: UserDefaultsService.Keys.cachedUser)
+        }
+    }
+
+    private func cacheHousehold(_ household: Household) {
+        let dto = HouseholdDTO(
+            id: household.id,
+            name: household.name,
+            inviteCode: household.inviteCode,
+            createdAt: household.createdAt,
+            updatedAt: household.updatedAt,
+            members: household.members.map { UserDTO(
+                id: $0.id,
+                email: $0.email,
+                displayName: $0.displayName,
+                avatarUrl: $0.avatarUrl,
+                roleLabel: $0.roleLabel,
+                householdId: $0.householdId,
+                createdAt: $0.createdAt,
+                updatedAt: $0.updatedAt
+            ) }
+        )
+        if let data = try? JSONEncoder().encode(dto) {
+            userDefaultsService.setData(data, forKey: UserDefaultsService.Keys.cachedHousehold)
         }
     }
 }

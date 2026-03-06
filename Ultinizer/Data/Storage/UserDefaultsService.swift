@@ -17,6 +17,7 @@ final class UserDefaultsService: UserDefaultsServiceProtocol, @unchecked Sendabl
         static let biometricEnabled = "biometric_enabled"
         static let themeMode = "app_theme_mode"
         static let cachedUser = "cached_user"
+        static let cachedHousehold = "cached_household"
         static let onboardingCompleted = "onboarding_completed"
     }
 

@@ -63,7 +63,7 @@ struct UserDTO: Codable {
     let updatedAt: Date
 }
 
-struct HouseholdDTO: Decodable {
+struct HouseholdDTO: Codable {
     let id: String
     let name: String
     let inviteCode: String
