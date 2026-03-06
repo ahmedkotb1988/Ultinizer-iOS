@@ -2,6 +2,7 @@ import Foundation
 import Observation
 
 @Observable
+@MainActor
 final class AuthManager {
     var user: User?
     var household: Household?

@@ -3,6 +3,7 @@ import Observation
 import UIKit
 
 @Observable
+@MainActor
 final class LoginViewModel {
     var email = ""
     var password = ""
