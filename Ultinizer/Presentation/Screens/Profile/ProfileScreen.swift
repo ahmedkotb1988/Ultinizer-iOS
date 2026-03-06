@@ -399,29 +399,29 @@ struct ProfileScreen: View {
                                 .foregroundColor(AppColors.textSecondary)
                         }
                         Spacer()
-                        Toggle("", isOn: $biometricEnabled)
-                            .tint(AppColors.magenta500)
-                            .labelsHidden()
-                            .accessibilityLabel("\(biometricType) Unlock, \(biometricEnabled ? "enabled" : "disabled")")
-                            .onChange(of: biometricEnabled) { _, newValue in
+                        Toggle("", isOn: Binding(
+                            get: { biometricEnabled },
+                            set: { newValue in
                                 guard biometricLoaded else { return }
                                 Task {
                                     if newValue {
-                                        // Verify identity before enabling
                                         let success = await BiometricService.shared.authenticate(
                                             reason: "Verify your identity to enable \(biometricType) Unlock"
                                         )
                                         if success {
+                                            biometricEnabled = true
                                             container.userDefaultsService.setBool(true, forKey: UserDefaultsService.Keys.biometricEnabled)
-                                        } else {
-                                            // Cancelled or failed — revert toggle
-                                            biometricEnabled = false
                                         }
                                     } else {
+                                        biometricEnabled = false
                                         container.userDefaultsService.setBool(false, forKey: UserDefaultsService.Keys.biometricEnabled)
                                     }
                                 }
                             }
+                        ))
+                            .tint(AppColors.magenta500)
+                            .labelsHidden()
+                            .accessibilityLabel("\(biometricType) Unlock, \(biometricEnabled ? "enabled" : "disabled")")
                     }
 
                     Divider().foregroundColor(AppColors.borderPrimary)
