@@ -17,16 +17,19 @@ struct NotificationsScreen: View {
 
     var body: some View {
         NavigationStack {
-            Group {
+            VStack {
                 if isLoading {
+                    Spacer()
                     LoadingView()
+                    Spacer()
                 } else if notifications.isEmpty {
+                    Spacer()
                     EmptyStateView(
                         icon: "bell.slash",
                         title: "No notifications",
                         description: "You're all caught up!"
                     )
-                    .frame(maxHeight: .infinity)
+                    Spacer()
                 } else {
                     ScrollView {
                         LazyVStack(spacing: 0) {
@@ -38,6 +41,7 @@ struct NotificationsScreen: View {
                     }
                 }
             }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(AppColors.backgroundSecondary)
             .navigationTitle("Notifications")
             .navigationBarTitleDisplayMode(.inline)
