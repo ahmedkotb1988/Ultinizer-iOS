@@ -133,7 +133,9 @@ final class AuthManager {
         try? await logoutUseCase.execute()
         user = nil
         household = nil
+        awaitingBiometric = false
         userDefaultsService.remove(forKey: UserDefaultsService.Keys.cachedUser)
+        userDefaultsService.remove(forKey: UserDefaultsService.Keys.biometricEnabled)
     }
 
     func deleteAccount(password: String) async throws {
