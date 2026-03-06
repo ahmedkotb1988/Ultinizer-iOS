@@ -4,10 +4,11 @@ struct NotificationsScreen: View {
     @State private var notifications: [AppNotification] = []
     @State private var isLoading = false
 
+    @Environment(\.colorScheme) private var colorScheme
+    @Environment(\.dismiss) private var dismiss
+
     private let container: AppContainer
     private let router: AppRouter
-
-    @Environment(\.colorScheme) private var colorScheme
 
     init(container: AppContainer, router: AppRouter) {
         self.container = container
@@ -15,65 +16,54 @@ struct NotificationsScreen: View {
     }
 
     var body: some View {
-        VStack(spacing: 0) {
-            // Header
-            HStack {
-                Button(action: { router.pop() }) {
-                    HStack(spacing: 4) {
-                        Image(systemName: "arrow.left")
-                        Text("Back")
-                    }
-                    .font(AppTypography.bodyMedium)
-                    .foregroundColor(AppColors.magenta500)
-                }
-                .accessibilityLabel("Go back")
-                Spacer()
-                Text("Notifications")
-                    .font(AppTypography.heading)
-                    .foregroundColor(AppColors.textPrimary)
-                    .accessibilityAddTraits(.isHeader)
-                Spacer()
-                if !notifications.isEmpty {
-                    Button(action: { Task { await markAllRead() } }) {
-                        Text("Read All")
-                            .font(AppTypography.labelMedium)
-                            .foregroundColor(AppColors.magenta500)
-                    }
-                    .accessibilityLabel("Mark all notifications as read")
+        NavigationStack {
+            Group {
+                if isLoading {
+                    LoadingView()
+                } else if notifications.isEmpty {
+                    EmptyStateView(
+                        icon: "bell.slash",
+                        title: "No notifications",
+                        description: "You're all caught up!"
+                    )
+                    .frame(maxHeight: .infinity)
                 } else {
-                    Color.clear.frame(width: 60)
-                        .accessibilityHidden(true)
-                }
-            }
-            .padding(.horizontal, AppSpacing.screenHorizontal)
-            .padding(.vertical, AppSpacing.lg)
-            .overlay(Divider().foregroundColor(AppColors.borderPrimary), alignment: .bottom)
-
-            if isLoading {
-                LoadingView()
-            } else if notifications.isEmpty {
-                EmptyStateView(
-                    icon: "bell.slash",
-                    title: "No notifications",
-                    description: "You're all caught up!"
-                )
-                .frame(maxHeight: .infinity)
-            } else {
-                ScrollView {
-                    LazyVStack(spacing: 0) {
-                        ForEach(notifications) { notification in
-                            notificationRow(notification)
+                    ScrollView {
+                        LazyVStack(spacing: 0) {
+                            ForEach(notifications) { notification in
+                                notificationRow(notification)
+                            }
                         }
+                        .padding(.bottom, 40)
                     }
-                    .padding(.bottom, 40)
                 }
             }
-        }
-        .background(AppColors.backgroundSecondary)
-        .navigationBarHidden(true)
-        .toolbar(.hidden, for: .navigationBar)
-        .task {
-            await loadNotifications()
+            .background(AppColors.backgroundSecondary)
+            .navigationTitle("Notifications")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button(action: { dismiss() }) {
+                        Image(systemName: "xmark")
+                            .font(.system(size: 16, weight: .medium))
+                            .foregroundColor(AppColors.gray400)
+                    }
+                    .accessibilityLabel("Close")
+                }
+                if !notifications.isEmpty {
+                    ToolbarItem(placement: .confirmationAction) {
+                        Button(action: { Task { await markAllRead() } }) {
+                            Text("Read All")
+                                .font(AppTypography.labelMedium)
+                                .foregroundColor(AppColors.magenta500)
+                        }
+                        .accessibilityLabel("Mark all notifications as read")
+                    }
+                }
+            }
+            .task {
+                await loadNotifications()
+            }
         }
     }
 
@@ -82,11 +72,11 @@ struct NotificationsScreen: View {
         Button(action: {
             Task { await markRead(notification) }
             if let taskId = notification.taskId {
+                dismiss()
                 router.navigate(to: .taskDetail(id: taskId))
             }
         }) {
             HStack(alignment: .top, spacing: AppSpacing.lg) {
-                // Unread indicator
                 Circle()
                     .fill(notification.isRead ? .clear : AppColors.magenta500)
                     .frame(width: 8, height: 8)

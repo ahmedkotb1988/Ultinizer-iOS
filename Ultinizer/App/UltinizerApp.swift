@@ -186,12 +186,8 @@ struct MainTabView: View {
             EmptyView() // Handled via sheet
         case .editTask(let id):
             CreateTaskScreen(container: container, authManager: authManager, router: router)
-        case .editProfile:
-            EditProfileScreen(authManager: authManager, updateProfileUseCase: container.updateProfileUseCase, router: router)
-        case .changePassword:
-            ChangePasswordScreen(changePasswordUseCase: container.changePasswordUseCase, router: router)
-        case .notifications:
-            NotificationsScreen(container: container, router: router)
+        case .editProfile, .changePassword, .notifications:
+            EmptyView() // Presented as sheets from ProfileScreen
         case .statistics:
             StatisticsScreen(container: container)
         default:

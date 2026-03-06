@@ -6,42 +6,18 @@ struct EditProfileScreen: View {
     @State private var errorMessage = ""
     @State private var isLoading = false
 
+    @Environment(\.dismiss) private var dismiss
+
     private let authManager: AuthManager
     private let updateProfileUseCase: UpdateProfileUseCaseProtocol
-    private let router: AppRouter
 
-    init(authManager: AuthManager, updateProfileUseCase: UpdateProfileUseCaseProtocol, router: AppRouter) {
+    init(authManager: AuthManager, updateProfileUseCase: UpdateProfileUseCaseProtocol) {
         self.authManager = authManager
         self.updateProfileUseCase = updateProfileUseCase
-        self.router = router
     }
 
     var body: some View {
-        VStack(spacing: 0) {
-            // Header
-            HStack {
-                Button(action: { router.pop() }) {
-                    HStack(spacing: 4) {
-                        Image(systemName: "arrow.left")
-                        Text("Back")
-                    }
-                    .font(AppTypography.bodyMedium)
-                    .foregroundColor(AppColors.magenta500)
-                }
-                .accessibilityLabel("Go back")
-                Spacer()
-                Text("Edit Profile")
-                    .font(AppTypography.heading)
-                    .foregroundColor(AppColors.textPrimary)
-                    .accessibilityAddTraits(.isHeader)
-                Spacer()
-                Color.clear.frame(width: 60)
-                    .accessibilityHidden(true)
-            }
-            .padding(.horizontal, AppSpacing.screenHorizontal)
-            .padding(.vertical, AppSpacing.lg)
-            .overlay(Divider().foregroundColor(AppColors.borderPrimary), alignment: .bottom)
-
+        NavigationStack {
             ScrollView {
                 VStack(spacing: 0) {
                     if !errorMessage.isEmpty {
@@ -71,10 +47,20 @@ struct EditProfileScreen: View {
                 .padding(.top, AppSpacing.xl)
             }
             .scrollDismissesKeyboard(.interactively)
+            .navigationTitle("Edit Profile")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button(action: { dismiss() }) {
+                        Image(systemName: "xmark")
+                            .font(.system(size: 16, weight: .medium))
+                            .foregroundColor(AppColors.gray400)
+                    }
+                    .accessibilityLabel("Close")
+                }
+            }
+            .background(AppColors.backgroundSecondary)
         }
-        .background(AppColors.backgroundSecondary)
-        .navigationBarHidden(true)
-        .toolbar(.hidden, for: .navigationBar)
         .onAppear {
             displayName = authManager.user?.displayName ?? ""
             roleLabel = authManager.user?.roleLabel ?? ""
@@ -98,7 +84,7 @@ struct EditProfileScreen: View {
                 roleLabel: roleLabel.trimmingCharacters(in: .whitespacesAndNewlines)
             )
             await authManager.refreshUser()
-            router.pop()
+            dismiss()
         } catch let error as APIError {
             errorMessage = error.userMessage
         } catch {

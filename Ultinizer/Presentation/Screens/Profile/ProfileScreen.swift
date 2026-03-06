@@ -20,6 +20,10 @@ struct ProfileScreen: View {
     @State private var showCamera = false
     @State private var showPhotoPicker = false
     @State private var showCameraPermissionAlert = false
+    @State private var showEditProfile = false
+    @State private var showChangePassword = false
+    @State private var showNotifications = false
+
     private let authManager: AuthManager
     private let router: AppRouter
     private let container: AppContainer
@@ -90,7 +94,7 @@ struct ProfileScreen: View {
                 .padding(.bottom, AppSpacing.xl)
 
                 // Edit profile
-                CardView(onTap: { router.navigate(to: .editProfile) }) {
+                CardView(onTap: { showEditProfile = true }) {
                     HStack {
                         HStack(spacing: AppSpacing.lg) {
                             Image(systemName: "person")
@@ -126,7 +130,7 @@ struct ProfileScreen: View {
                     .padding(.bottom, AppSpacing.xl)
 
                 // Notifications
-                CardView(onTap: { router.navigate(to: .notifications) }) {
+                CardView(onTap: { showNotifications = true }) {
                     HStack {
                         HStack(spacing: AppSpacing.lg) {
                             Image(systemName: "bell")
@@ -268,6 +272,15 @@ struct ProfileScreen: View {
             Button("Cancel", role: .cancel) {}
         } message: {
             Text("Please enable camera access in Settings to take profile photos.")
+        }
+        .sheet(isPresented: $showEditProfile) {
+            EditProfileScreen(authManager: authManager, updateProfileUseCase: container.updateProfileUseCase)
+        }
+        .sheet(isPresented: $showChangePassword) {
+            ChangePasswordScreen(changePasswordUseCase: container.changePasswordUseCase)
+        }
+        .sheet(isPresented: $showNotifications) {
+            NotificationsScreen(container: container, router: router)
         }
     }
 
@@ -426,7 +439,7 @@ struct ProfileScreen: View {
                     Divider().foregroundColor(AppColors.borderPrimary)
                 }
 
-                Button(action: { router.navigate(to: .changePassword) }) {
+                Button(action: { showChangePassword = true }) {
                     HStack {
                         HStack(spacing: AppSpacing.lg) {
                             Image(systemName: "lock")

@@ -8,40 +8,16 @@ struct ChangePasswordScreen: View {
     @State private var successMessage = ""
     @State private var isLoading = false
 
-    private let changePasswordUseCase: ChangePasswordUseCaseProtocol
-    private let router: AppRouter
+    @Environment(\.dismiss) private var dismiss
 
-    init(changePasswordUseCase: ChangePasswordUseCaseProtocol, router: AppRouter) {
+    private let changePasswordUseCase: ChangePasswordUseCaseProtocol
+
+    init(changePasswordUseCase: ChangePasswordUseCaseProtocol) {
         self.changePasswordUseCase = changePasswordUseCase
-        self.router = router
     }
 
     var body: some View {
-        VStack(spacing: 0) {
-            // Header
-            HStack {
-                Button(action: { router.pop() }) {
-                    HStack(spacing: 4) {
-                        Image(systemName: "arrow.left")
-                        Text("Back")
-                    }
-                    .font(AppTypography.bodyMedium)
-                    .foregroundColor(AppColors.magenta500)
-                }
-                .accessibilityLabel("Go back")
-                Spacer()
-                Text("Change Password")
-                    .font(AppTypography.heading)
-                    .foregroundColor(AppColors.textPrimary)
-                    .accessibilityAddTraits(.isHeader)
-                Spacer()
-                Color.clear.frame(width: 60)
-                    .accessibilityHidden(true)
-            }
-            .padding(.horizontal, AppSpacing.screenHorizontal)
-            .padding(.vertical, AppSpacing.lg)
-            .overlay(Divider().foregroundColor(AppColors.borderPrimary), alignment: .bottom)
-
+        NavigationStack {
             ScrollView {
                 VStack(spacing: 0) {
                     if !errorMessage.isEmpty {
@@ -87,10 +63,20 @@ struct ChangePasswordScreen: View {
                 .padding(.top, AppSpacing.xl)
             }
             .scrollDismissesKeyboard(.interactively)
+            .navigationTitle("Change Password")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button(action: { dismiss() }) {
+                        Image(systemName: "xmark")
+                            .font(.system(size: 16, weight: .medium))
+                            .foregroundColor(AppColors.gray400)
+                    }
+                    .accessibilityLabel("Close")
+                }
+            }
+            .background(AppColors.backgroundSecondary)
         }
-        .background(AppColors.backgroundSecondary)
-        .navigationBarHidden(true)
-        .toolbar(.hidden, for: .navigationBar)
     }
 
     @MainActor
