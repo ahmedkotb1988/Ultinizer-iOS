@@ -18,6 +18,11 @@ final class LoginViewModel {
 
     var hasError: Bool { !errorMessage.isEmpty }
 
+    /// Whether the login screen should show the biometric button (biometric available AND enabled, or awaiting biometric)
+    var showBiometricButton: Bool {
+        biometricType != nil && authManager.awaitingBiometric
+    }
+
     @MainActor
     func login() async -> LoginResult? {
         guard !email.isEmpty else {
@@ -48,8 +53,22 @@ final class LoginViewModel {
     }
 
     func checkBiometric() async {
-        // Check if biometric is available and enabled
-        let context = await BiometricService.shared
-        biometricType = await context.biometricTypeString()
+        let service = BiometricService.shared
+        biometricType = await service.biometricTypeString()
+    }
+
+    @MainActor
+    func authenticateWithBiometric() async {
+        guard authManager.awaitingBiometric else { return }
+
+        let service = BiometricService.shared
+        let success = await service.authenticate()
+
+        if success {
+            await authManager.completeBiometricLogin()
+        } else {
+            // Biometric failed or cancelled — stay on login screen for manual login
+            errorMessage = ""
+        }
     }
 }

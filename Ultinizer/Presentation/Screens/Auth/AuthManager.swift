@@ -7,6 +7,7 @@ final class AuthManager {
     var household: Household?
     var isLoading = true
     var isAuthenticated: Bool { user != nil }
+    var awaitingBiometric = false
 
     private let loginUseCase: LoginUseCaseProtocol
     private let registerUseCase: RegisterUseCaseProtocol
@@ -44,6 +45,14 @@ final class AuthManager {
         do {
             guard let _ = try await keychainService.getAccessToken() else { return }
 
+            let biometricEnabled = userDefaultsService.getBool(forKey: UserDefaultsService.Keys.biometricEnabled)
+
+            if biometricEnabled {
+                // Tokens exist and biometric is enabled — don't authenticate yet
+                awaitingBiometric = true
+                return
+            }
+
             // Try to load cached user first
             if let data = userDefaultsService.getData(forKey: UserDefaultsService.Keys.cachedUser),
                let cached = try? JSONDecoder().decode(UserDTO.self, from: data) {
@@ -67,6 +76,38 @@ final class AuthManager {
             }
         } catch {
             // Token invalid or network error
+            user = nil
+            household = nil
+        }
+    }
+
+    /// Complete login after successful biometric authentication
+    func completeBiometricLogin() async {
+        isLoading = true
+        awaitingBiometric = false
+        defer { isLoading = false }
+
+        do {
+            // Try to load cached user first
+            if let data = userDefaultsService.getData(forKey: UserDefaultsService.Keys.cachedUser),
+               let cached = try? JSONDecoder().decode(UserDTO.self, from: data) {
+                user = UserMapper.map(cached)
+            }
+
+            // Fetch fresh data
+            let freshUser = try await getMeUseCase.execute()
+            user = freshUser
+            cacheUser(freshUser)
+
+            if freshUser.householdId != nil {
+                do {
+                    household = try await householdRepository.getMyHousehold()
+                } catch {
+                    // No household or error - that's ok
+                }
+            }
+        } catch {
+            // Token invalid — fall back to manual login
             user = nil
             household = nil
         }

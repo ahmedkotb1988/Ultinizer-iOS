@@ -1,6 +1,7 @@
 import SwiftUI
 import PhotosUI
 import SafariServices
+import AVFoundation
 
 struct ProfileScreen: View {
     @State private var showLogoutAlert = false
@@ -11,8 +12,13 @@ struct ProfileScreen: View {
     @State private var isDeletingAccount = false
     @State private var selectedPhoto: PhotosPickerItem?
     @State private var biometricEnabled = false
+    @State private var biometricAvailable = false
     @State private var biometricType = "Biometric"
     @State private var safariURL: URL?
+    @State private var showPhotoSourceSheet = false
+    @State private var showCamera = false
+    @State private var showPhotoPicker = false
+    @State private var showCameraPermissionAlert = false
 
     private let authManager: AuthManager
     private let router: AppRouter
@@ -40,7 +46,7 @@ struct ProfileScreen: View {
                 // User info card
                 CardView {
                     VStack(spacing: AppSpacing.lg) {
-                        PhotosPicker(selection: $selectedPhoto, matching: .images) {
+                        Button(action: { showPhotoSourceSheet = true }) {
                             ZStack(alignment: .bottomTrailing) {
                                 AvatarView(
                                     name: authManager.user?.displayName ?? "",
@@ -218,6 +224,50 @@ struct ProfileScreen: View {
                 Task { await uploadAvatar(item: newValue) }
             }
         }
+        .task {
+            let service = BiometricService.shared
+            biometricAvailable = await service.isAvailable()
+            if let type = await service.biometricTypeString() {
+                biometricType = type
+            }
+            biometricEnabled = container.userDefaultsService.getBool(forKey: UserDefaultsService.Keys.biometricEnabled)
+        }
+        .confirmationDialog("Change Profile Photo", isPresented: $showPhotoSourceSheet, titleVisibility: .visible) {
+            Button("Take Photo") {
+                Task {
+                    let granted = await CameraPermissionHelper.requestAccess()
+                    if granted {
+                        showCamera = true
+                    } else {
+                        showCameraPermissionAlert = true
+                    }
+                }
+            }
+            Button("Choose from Library") {
+                showPhotoPicker = true
+            }
+            Button("Cancel", role: .cancel) {}
+        }
+        .photosPicker(isPresented: $showPhotoPicker, selection: $selectedPhoto, matching: .images)
+        .fullScreenCover(isPresented: $showCamera) {
+            CameraView { image in
+                showCamera = false
+                guard let data = image.jpegData(compressionQuality: 0.8) else { return }
+                Task { await uploadAvatarData(data) }
+            } onCancel: {
+                showCamera = false
+            }
+        }
+        .alert("Camera Access Required", isPresented: $showCameraPermissionAlert) {
+            Button("Open Settings") {
+                if let url = URL(string: UIApplication.openSettingsURLString) {
+                    UIApplication.shared.open(url)
+                }
+            }
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text("Please enable camera access in Settings to take profile photos.")
+        }
     }
 
     // MARK: - Subviews
@@ -336,23 +386,43 @@ struct ProfileScreen: View {
                     .foregroundColor(AppColors.textSecondary)
                     .accessibilityAddTraits(.isHeader)
 
-                HStack {
-                    HStack(spacing: AppSpacing.lg) {
-                        Image(systemName: biometricType == "Face ID" ? "faceid" : "touchid")
-                            .foregroundColor(AppColors.magenta500)
-                            .accessibilityHidden(true)
-                        Text("\(biometricType) Unlock")
-                            .font(AppTypography.body)
-                            .foregroundColor(AppColors.textSecondary)
+                if biometricAvailable {
+                    HStack {
+                        HStack(spacing: AppSpacing.lg) {
+                            Image(systemName: biometricType == "Face ID" ? "faceid" : "touchid")
+                                .foregroundColor(AppColors.magenta500)
+                                .accessibilityHidden(true)
+                            Text("\(biometricType) Unlock")
+                                .font(AppTypography.body)
+                                .foregroundColor(AppColors.textSecondary)
+                        }
+                        Spacer()
+                        Toggle("", isOn: $biometricEnabled)
+                            .tint(AppColors.magenta500)
+                            .labelsHidden()
+                            .accessibilityLabel("\(biometricType) Unlock, \(biometricEnabled ? "enabled" : "disabled")")
+                            .onChange(of: biometricEnabled) { _, newValue in
+                                Task {
+                                    if newValue {
+                                        // Verify identity before enabling
+                                        let success = await BiometricService.shared.authenticate(
+                                            reason: "Verify your identity to enable \(biometricType) Unlock"
+                                        )
+                                        if success {
+                                            container.userDefaultsService.setBool(true, forKey: UserDefaultsService.Keys.biometricEnabled)
+                                        } else {
+                                            // Cancelled or failed — revert toggle
+                                            biometricEnabled = false
+                                        }
+                                    } else {
+                                        container.userDefaultsService.setBool(false, forKey: UserDefaultsService.Keys.biometricEnabled)
+                                    }
+                                }
+                            }
                     }
-                    Spacer()
-                    Toggle("", isOn: $biometricEnabled)
-                        .tint(AppColors.magenta500)
-                        .labelsHidden()
-                        .accessibilityLabel("\(biometricType) Unlock, \(biometricEnabled ? "enabled" : "disabled")")
-                }
 
-                Divider().foregroundColor(AppColors.borderPrimary)
+                    Divider().foregroundColor(AppColors.borderPrimary)
+                }
 
                 Button(action: { router.navigate(to: .changePassword) }) {
                     HStack {
@@ -427,6 +497,10 @@ struct ProfileScreen: View {
 
     private func uploadAvatar(item: PhotosPickerItem) async {
         guard let data = try? await item.loadTransferable(type: Data.self) else { return }
+        await uploadAvatarData(data)
+    }
+
+    private func uploadAvatarData(_ data: Data) async {
         do {
             _ = try await container.authRepository.uploadAvatar(
                 imageData: data,

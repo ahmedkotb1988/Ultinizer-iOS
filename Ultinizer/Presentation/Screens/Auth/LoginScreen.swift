@@ -99,9 +99,9 @@ struct LoginScreen: View {
                 .padding(.top, AppSpacing.md)
 
                 // Biometric button
-                if let biometricType = viewModel.biometricType {
+                if viewModel.showBiometricButton, let biometricType = viewModel.biometricType {
                     Button(action: {
-                        // Biometric auth
+                        Task { await viewModel.authenticateWithBiometric() }
                     }) {
                         VStack(spacing: AppSpacing.xs) {
                             ZStack {
@@ -147,6 +147,10 @@ struct LoginScreen: View {
         .toolbar(.hidden, for: .navigationBar)
         .task {
             await viewModel.checkBiometric()
+            // Auto-trigger biometric prompt if awaiting biometric unlock
+            if viewModel.showBiometricButton {
+                await viewModel.authenticateWithBiometric()
+            }
         }
     }
 }

@@ -25,6 +25,7 @@
 		19780965288FC4BD5670FD60 /* TextInput.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84845EADF77CB328082A4187 /* TextInput.swift */; };
 		1AD1D8D080C2DF20FEC0500F /* CardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72055775D520D6C800839C98 /* CardView.swift */; };
 		1D865F192E7E3186DEEF3377 /* ToastView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE2C278F41216262CD439AE8 /* ToastView.swift */; };
+		A1B2C3D4E5F60718192A3B4C /* CameraView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4E5F6071819A1B2C3D40001 /* CameraView.swift */; };
 		25D8629FF2F7C124FDBFF890 /* HouseholdRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3BD5435F2A84F9EF057B9DB8 /* HouseholdRepository.swift */; };
 		272936A54A9020166C617239 /* TaskCategory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D260F399AAFFE797A6CB93F /* TaskCategory.swift */; };
 		2D171F385672C9144E3DE2BD /* TaskCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFC243E9D0CB318A42C0DAD6 /* TaskCard.swift */; };
@@ -239,6 +240,7 @@
 		E3C48BD1DE74A3553B9CFB3A /* DeleteCommentUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeleteCommentUseCase.swift; sourceTree = "<group>"; };
 		E99278D144ADAC578B08460E /* LoginViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginViewModel.swift; sourceTree = "<group>"; };
 		EE2C278F41216262CD439AE8 /* ToastView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToastView.swift; sourceTree = "<group>"; };
+		D4E5F6071819A1B2C3D40001 /* CameraView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraView.swift; sourceTree = "<group>"; };
 		EFC243E9D0CB318A42C0DAD6 /* TaskCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskCard.swift; sourceTree = "<group>"; };
 		F03652072D4C9EF4D23720AC /* LoginScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginScreen.swift; sourceTree = "<group>"; };
 		F03D92B9DDDCCD967800A258 /* AvatarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AvatarView.swift; sourceTree = "<group>"; };
@@ -394,6 +396,7 @@
 			children = (
 				F03D92B9DDDCCD967800A258 /* AvatarView.swift */,
 				572E4A1A058039F453C52657 /* BadgeView.swift */,
+				D4E5F6071819A1B2C3D40001 /* CameraView.swift */,
 				72055775D520D6C800839C98 /* CardView.swift */,
 				9735887875FB0E8E8CBB3D3A /* EmptyStateView.swift */,
 				B84C93AA425174D6EB021604 /* FABView.swift */,
@@ -974,6 +977,7 @@
 				CE817788A9D12A5A51EFD1AC /* TaskStatusBadge.swift in Sources */,
 				19780965288FC4BD5670FD60 /* TextInput.swift in Sources */,
 				1D865F192E7E3186DEEF3377 /* ToastView.swift in Sources */,
+				A1B2C3D4E5F60718192A3B4C /* CameraView.swift in Sources */,
 				65087BF46AF8DF76901F6BC6 /* UltinizerApp.swift in Sources */,
 				81294CB2825081D349DEDD44 /* UpdateProfileUseCase.swift in Sources */,
 				1062E966847DB03BCBBFAE69 /* UpdateTaskUseCase.swift in Sources */,

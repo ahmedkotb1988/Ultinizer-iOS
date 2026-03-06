@@ -51,7 +51,7 @@ struct RootView: View {
         Group {
             if authManager.isLoading {
                 LoadingView()
-            } else if !authManager.isAuthenticated {
+            } else if !authManager.isAuthenticated || authManager.awaitingBiometric {
                 AuthFlow(
                     container: container,
                     authManager: authManager,
