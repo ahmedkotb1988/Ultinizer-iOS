@@ -33,6 +33,17 @@ struct UpdateMeRequestDTO: Encodable {
     let roleLabel: String?
 }
 
+struct DeleteAccountRequestDTO: Encodable {
+    let password: String
+}
+
+struct ReportRequestDTO: Encodable {
+    let targetType: String
+    let targetId: String
+    let reason: String
+    let description: String?
+}
+
 // MARK: - Response DTOs
 
 struct LoginResponseDTO: Decodable {

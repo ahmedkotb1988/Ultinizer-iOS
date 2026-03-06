@@ -23,11 +23,11 @@
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
 	<key>NSCameraUsageDescription</key>
-	<string>Take photos for task attachments</string>
+	<string>Ultinizer needs access to your camera to take photos for task attachments and comments.</string>
 	<key>NSFaceIDUsageDescription</key>
-	<string>Authenticate to access Ultinizer</string>
+	<string>Ultinizer uses Face ID to securely unlock your account without entering your password.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>Choose photos for your avatar or task attachments</string>
+	<string>Ultinizer needs access to your photo library to attach images to tasks and comments.</string>
 	<key>UIAppFonts</key>
 	<array>
 		<string>Inter-Regular.ttf</string>

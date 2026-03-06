@@ -42,9 +42,9 @@ targets:
           UIApplicationSupportsMultipleScenes: false
         UISupportedInterfaceOrientations:
           - UIInterfaceOrientationPortrait
-        NSFaceIDUsageDescription: "Authenticate to access Ultinizer"
-        NSCameraUsageDescription: "Take photos for task attachments"
-        NSPhotoLibraryUsageDescription: "Choose photos for your avatar or task attachments"
+        NSFaceIDUsageDescription: "Ultinizer uses Face ID to securely unlock your account without entering your password."
+        NSCameraUsageDescription: "Ultinizer needs access to your camera to take photos for task attachments and comments."
+        NSPhotoLibraryUsageDescription: "Ultinizer needs access to your photo library to attach images to tasks and comments."
         UIUserInterfaceStyle: Light
         UIAppFonts:
           - Inter-Regular.ttf

@@ -28,7 +28,8 @@ final class LoginViewModelTests: XCTestCase {
             getMeUseCase: getMeUC,
             householdRepository: mockHouseholdRepo,
             keychainService: mockKeychain,
-            userDefaultsService: mockDefaults
+            userDefaultsService: mockDefaults,
+            authRepository: mockAuthRepo
         )
 
         sut = LoginViewModel(authManager: authManager)

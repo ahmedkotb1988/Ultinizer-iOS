@@ -28,12 +28,15 @@ struct EditProfileScreen: View {
                     .font(AppTypography.bodyMedium)
                     .foregroundColor(AppColors.magenta500)
                 }
+                .accessibilityLabel("Go back")
                 Spacer()
                 Text("Edit Profile")
                     .font(AppTypography.heading)
                     .foregroundColor(AppColors.textPrimary)
+                    .accessibilityAddTraits(.isHeader)
                 Spacer()
                 Color.clear.frame(width: 60)
+                    .accessibilityHidden(true)
             }
             .padding(.horizontal, AppSpacing.screenHorizontal)
             .padding(.vertical, AppSpacing.lg)

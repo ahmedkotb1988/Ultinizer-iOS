@@ -26,10 +26,12 @@ struct NotificationsScreen: View {
                     .font(AppTypography.bodyMedium)
                     .foregroundColor(AppColors.magenta500)
                 }
+                .accessibilityLabel("Go back")
                 Spacer()
                 Text("Notifications")
                     .font(AppTypography.heading)
                     .foregroundColor(AppColors.textPrimary)
+                    .accessibilityAddTraits(.isHeader)
                 Spacer()
                 if !notifications.isEmpty {
                     Button(action: { Task { await markAllRead() } }) {
@@ -37,8 +39,10 @@ struct NotificationsScreen: View {
                             .font(AppTypography.labelMedium)
                             .foregroundColor(AppColors.magenta500)
                     }
+                    .accessibilityLabel("Mark all notifications as read")
                 } else {
                     Color.clear.frame(width: 60)
+                        .accessibilityHidden(true)
                 }
             }
             .padding(.horizontal, AppSpacing.screenHorizontal)
@@ -87,6 +91,7 @@ struct NotificationsScreen: View {
                     .fill(notification.isRead ? .clear : AppColors.magenta500)
                     .frame(width: 8, height: 8)
                     .padding(.top, 6)
+                    .accessibilityHidden(true)
 
                 VStack(alignment: .leading, spacing: AppSpacing.xxs) {
                     Text(notification.title)
@@ -116,7 +121,10 @@ struct NotificationsScreen: View {
                 : (colorScheme == .dark ? AppColors.magenta950.opacity(0.3) : AppColors.magenta50.opacity(0.5))
             )
         }
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("\(notification.isRead ? "" : "Unread. ")\(notification.title). \(notification.body)")
         Divider().foregroundColor(AppColors.borderSecondary)
+            .accessibilityHidden(true)
     }
 
     private func loadNotifications() async {

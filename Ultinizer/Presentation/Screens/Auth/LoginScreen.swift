@@ -28,6 +28,7 @@ struct LoginScreen: View {
                                 .font(.system(size: 32))
                                 .foregroundColor(.white)
                         )
+                        .accessibilityHidden(true)
 
                     VStack(spacing: AppSpacing.xs) {
                         Text("Ultinizer")
@@ -75,6 +76,7 @@ struct LoginScreen: View {
                             .font(AppTypography.labelSemiBold)
                             .foregroundColor(AppColors.magenta500)
                     }
+                    .accessibilityLabel("Forgot password")
                 }
                 .padding(.top, -AppSpacing.xs)
                 .padding(.bottom, AppSpacing.md)
@@ -116,6 +118,7 @@ struct LoginScreen: View {
                         }
                     }
                     .padding(.top, AppSpacing.xl)
+                    .accessibilityLabel("Sign in with \(biometricType)")
                 }
 
                 // Register link
@@ -130,6 +133,7 @@ struct LoginScreen: View {
                             .font(AppTypography.labelSemiBold)
                             .foregroundColor(AppColors.magenta500)
                     }
+                    .accessibilityLabel("Create a new account")
                 }
                 .padding(.top, AppSpacing.xxxl)
 

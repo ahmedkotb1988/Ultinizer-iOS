@@ -143,6 +143,7 @@ struct CreateTaskScreen: View {
                                     .font(.system(size: 22))
                                     .foregroundColor(AppColors.magenta500)
                             }
+                            .accessibilityLabel("Add subtask")
                         }
 
                         ForEach(viewModel.subtaskTitles.indices, id: \.self) { index in
@@ -163,6 +164,7 @@ struct CreateTaskScreen: View {
                                     Image(systemName: "xmark.circle.fill")
                                         .foregroundColor(AppColors.red500)
                                 }
+                                .accessibilityLabel("Remove subtask \(index + 1)")
                             }
                         }
                     }
@@ -202,6 +204,7 @@ struct CreateTaskScreen: View {
                             .font(.system(size: 16, weight: .medium))
                             .foregroundColor(AppColors.gray400)
                     }
+                    .accessibilityLabel("Cancel task creation")
                 }
             }
             .background(AppColors.backgroundSecondary)
@@ -229,6 +232,7 @@ struct CreateTaskScreen: View {
                 Circle()
                     .fill(priorityColor)
                     .frame(width: 12, height: 12)
+                    .accessibilityHidden(true)
                 Text(p.displayName)
                     .font(AppTypography.captionMedium)
                     .foregroundColor(isSelected ? AppColors.magenta500 : AppColors.gray500)
@@ -249,6 +253,7 @@ struct CreateTaskScreen: View {
                     )
             )
         }
+        .accessibilityLabel("Priority: \(p.displayName)\(isSelected ? ", selected" : "")")
     }
 
     private func categoryChip(_ cat: TaskCategory) -> some View {

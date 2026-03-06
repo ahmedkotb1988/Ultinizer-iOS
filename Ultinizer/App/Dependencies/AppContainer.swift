@@ -26,6 +26,7 @@ final class AppContainer: @unchecked Sendable {
     let notificationRepository: NotificationRepositoryProtocol
     let statsRepository: StatsRepositoryProtocol
     let attachmentRepository: AttachmentRepositoryProtocol
+    let reportRepository: ReportRepositoryProtocol
 
     // MARK: - Use Cases: Auth
 
@@ -35,6 +36,7 @@ final class AppContainer: @unchecked Sendable {
     let getMeUseCase: GetMeUseCaseProtocol
     let forgotPasswordUseCase: ForgotPasswordUseCaseProtocol
     let changePasswordUseCase: ChangePasswordUseCaseProtocol
+    let deleteAccountUseCase: DeleteAccountUseCaseProtocol
     let updateProfileUseCase: UpdateProfileUseCaseProtocol
 
     // MARK: - Use Cases: Tasks
@@ -85,6 +87,7 @@ final class AppContainer: @unchecked Sendable {
         self.notificationRepository = NotificationRepository(apiClient: apiClient)
         self.statsRepository = StatsRepository(apiClient: apiClient)
         self.attachmentRepository = AttachmentRepository(apiClient: apiClient)
+        self.reportRepository = ReportRepository(apiClient: apiClient)
 
         // Use Cases: Auth
         self.loginUseCase = LoginUseCase(authRepository: authRepo)
@@ -93,6 +96,7 @@ final class AppContainer: @unchecked Sendable {
         self.getMeUseCase = GetMeUseCase(authRepository: authRepo)
         self.forgotPasswordUseCase = ForgotPasswordUseCase(authRepository: authRepo)
         self.changePasswordUseCase = ChangePasswordUseCase(authRepository: authRepo)
+        self.deleteAccountUseCase = DeleteAccountUseCase(authRepository: authRepo)
         self.updateProfileUseCase = UpdateProfileUseCase(authRepository: authRepo)
 
         // Use Cases: Tasks

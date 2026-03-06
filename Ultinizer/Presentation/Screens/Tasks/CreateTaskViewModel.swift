@@ -1,5 +1,9 @@
 import Foundation
 import Observation
+#if DEBUG
+import os
+private let logger = Logger(subsystem: "com.ultinizer.app", category: "CreateTaskVM")
+#endif
 
 @Observable
 final class CreateTaskViewModel {
@@ -36,7 +40,9 @@ final class CreateTaskViewModel {
         do {
             categories = try await categoryRepository.getCategories()
         } catch {
-            print("[CreateTaskVM] Failed to load categories: \(error)")
+            #if DEBUG
+            logger.error("Failed to load categories: \(error.localizedDescription)")
+            #endif
             errorMessage = "Failed to load categories. Please try again."
         }
         members = household?.members ?? []

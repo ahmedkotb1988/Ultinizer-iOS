@@ -1,11 +1,18 @@
 import SwiftUI
 import PhotosUI
+import SafariServices
 
 struct ProfileScreen: View {
     @State private var showLogoutAlert = false
+    @State private var showDeleteAccountAlert = false
+    @State private var showPasswordPrompt = false
+    @State private var deletePassword = ""
+    @State private var deleteError = ""
+    @State private var isDeletingAccount = false
     @State private var selectedPhoto: PhotosPickerItem?
     @State private var biometricEnabled = false
     @State private var biometricType = "Biometric"
+    @State private var safariURL: URL?
 
     private let authManager: AuthManager
     private let router: AppRouter
@@ -28,6 +35,7 @@ struct ProfileScreen: View {
                     .font(AppTypography.largeTitle)
                     .foregroundColor(AppColors.textPrimary)
                     .padding(.bottom, AppSpacing.xxxl)
+                    .accessibilityAddTraits(.isHeader)
 
                 // User info card
                 CardView {
@@ -52,19 +60,23 @@ struct ProfileScreen: View {
                                 )
                             }
                         }
+                        .accessibilityLabel("Change profile photo")
 
                         VStack(spacing: AppSpacing.xxs) {
                             Text(authManager.user?.displayName ?? "")
                                 .font(AppTypography.title)
                                 .foregroundColor(AppColors.textPrimary)
+                                .accessibilityLabel("Display name: \(authManager.user?.displayName ?? "")")
                             if let role = authManager.user?.roleLabel, !role.isEmpty {
                                 Text(role)
                                     .font(AppTypography.label)
                                     .foregroundColor(AppColors.magenta500)
+                                    .accessibilityLabel("Role: \(role)")
                             }
                             Text(authManager.user?.email ?? "")
                                 .font(AppTypography.label)
                                 .foregroundColor(AppColors.gray500)
+                                .accessibilityLabel("Email: \(authManager.user?.email ?? "")")
                         }
                     }
                     .frame(maxWidth: .infinity)
@@ -77,6 +89,7 @@ struct ProfileScreen: View {
                         HStack(spacing: AppSpacing.lg) {
                             Image(systemName: "person")
                                 .foregroundColor(AppColors.magenta500)
+                                .accessibilityHidden(true)
                             Text("Edit Profile")
                                 .font(AppTypography.body)
                                 .foregroundColor(AppColors.textSecondary)
@@ -85,8 +98,11 @@ struct ProfileScreen: View {
                         Image(systemName: "chevron.right")
                             .foregroundColor(AppColors.gray400)
                             .font(.system(size: 14))
+                            .accessibilityHidden(true)
                     }
                 }
+                .accessibilityLabel("Edit Profile")
+                .accessibilityAddTraits(.isButton)
                 .padding(.bottom, AppSpacing.xl)
 
                 // Household
@@ -109,6 +125,7 @@ struct ProfileScreen: View {
                         HStack(spacing: AppSpacing.lg) {
                             Image(systemName: "bell")
                                 .foregroundColor(AppColors.magenta500)
+                                .accessibilityHidden(true)
                             Text("Notification Preferences")
                                 .font(AppTypography.body)
                                 .foregroundColor(AppColors.textSecondary)
@@ -117,15 +134,41 @@ struct ProfileScreen: View {
                         Image(systemName: "chevron.right")
                             .foregroundColor(AppColors.gray400)
                             .font(.system(size: 14))
+                            .accessibilityHidden(true)
                     }
                 }
+                .accessibilityLabel("Notification Preferences")
+                .accessibilityAddTraits(.isButton)
                 .padding(.bottom, AppSpacing.xl)
+
+                // Legal section
+                legalCard
+                    .padding(.bottom, AppSpacing.xl)
 
                 // Logout
                 AppButton("Sign Out", variant: .danger) {
                     showLogoutAlert = true
                 }
+                .accessibilityLabel("Sign out of your account")
                 .padding(.top, AppSpacing.xl)
+
+                // Delete Account
+                Button(action: { showDeleteAccountAlert = true }) {
+                    HStack {
+                        Spacer()
+                        Text("Delete Account")
+                            .font(AppTypography.labelSemiBold)
+                            .foregroundColor(AppColors.red500)
+                        Spacer()
+                    }
+                    .padding(.vertical, AppSpacing.lg)
+                    .background(
+                        RoundedRectangle(cornerRadius: AppRadius.lg)
+                            .stroke(AppColors.red500, lineWidth: 1)
+                    )
+                }
+                .accessibilityLabel("Delete your account permanently")
+                .padding(.top, AppSpacing.lg)
             }
             .padding(.horizontal, AppSpacing.screenHorizontal)
             .padding(.top, AppSpacing.xl)
@@ -142,6 +185,34 @@ struct ProfileScreen: View {
         } message: {
             Text("Are you sure you want to sign out?")
         }
+        .alert("Delete Account?", isPresented: $showDeleteAccountAlert) {
+            Button("Cancel", role: .cancel) {}
+            Button("Delete Account", role: .destructive) {
+                showPasswordPrompt = true
+            }
+        } message: {
+            Text("This will permanently delete your account and all associated data. This action cannot be undone.")
+        }
+        .alert("Confirm Password", isPresented: $showPasswordPrompt) {
+            SecureField("Enter your password", text: $deletePassword)
+            Button("Cancel", role: .cancel) {
+                deletePassword = ""
+                deleteError = ""
+            }
+            Button("Delete", role: .destructive) {
+                Task { await performDeleteAccount() }
+            }
+        } message: {
+            if deleteError.isEmpty {
+                Text("Please enter your password to confirm account deletion.")
+            } else {
+                Text(deleteError)
+            }
+        }
+        .sheet(item: $safariURL) { url in
+            SafariView(url: url)
+                .ignoresSafeArea()
+        }
         .onChange(of: selectedPhoto) { _, newValue in
             if let newValue {
                 Task { await uploadAvatar(item: newValue) }
@@ -157,18 +228,22 @@ struct ProfileScreen: View {
                 Text("Household")
                     .font(AppTypography.labelSemiBold)
                     .foregroundColor(AppColors.textSecondary)
+                    .accessibilityAddTraits(.isHeader)
 
                 Text(household.name)
                     .font(AppTypography.body)
                     .foregroundColor(AppColors.textPrimary)
+                    .accessibilityLabel("Household name: \(household.name)")
 
                 HStack(spacing: AppSpacing.md) {
                     Image(systemName: "key")
                         .foregroundColor(AppColors.magenta500)
                         .font(.system(size: 16))
+                        .accessibilityHidden(true)
                     Text("Invite code: \(household.inviteCode)")
                         .font(AppTypography.labelMedium)
                         .foregroundColor(AppColors.textSecondary)
+                        .accessibilityLabel("Household invite code: \(household.inviteCode)")
                 }
                 .padding(.horizontal, AppSpacing.lg)
                 .padding(.vertical, AppSpacing.md)
@@ -178,6 +253,7 @@ struct ProfileScreen: View {
                 ForEach(household.members) { member in
                     HStack(spacing: AppSpacing.md) {
                         AvatarView(name: member.displayName, size: .sm)
+                            .accessibilityHidden(true)
                         Text(member.displayName)
                             .font(AppTypography.label)
                             .foregroundColor(AppColors.textSecondary)
@@ -187,6 +263,8 @@ struct ProfileScreen: View {
                                 .foregroundColor(AppColors.gray400)
                         }
                     }
+                    .accessibilityElement(children: .combine)
+                    .accessibilityLabel("Member: \(member.displayName)\(member.roleLabel.isEmpty ? "" : ", \(member.roleLabel)")")
                 }
             }
         }
@@ -198,6 +276,7 @@ struct ProfileScreen: View {
                 Text("Appearance")
                     .font(AppTypography.labelSemiBold)
                     .foregroundColor(AppColors.textSecondary)
+                    .accessibilityAddTraits(.isHeader)
 
                 HStack(spacing: AppSpacing.md) {
                     ForEach(AppThemeMode.allCases, id: \.self) { mode in
@@ -221,6 +300,7 @@ struct ProfileScreen: View {
                             VStack(spacing: AppSpacing.xs) {
                                 Image(systemName: icon)
                                     .font(.system(size: 20))
+                                    .accessibilityHidden(true)
                                 Text(label)
                                     .font(AppTypography.captionMedium)
                             }
@@ -241,6 +321,7 @@ struct ProfileScreen: View {
                                     )
                             )
                         }
+                        .accessibilityLabel("\(label) theme\(isSelected ? ", selected" : "")")
                     }
                 }
             }
@@ -253,11 +334,13 @@ struct ProfileScreen: View {
                 Text("Security")
                     .font(AppTypography.labelSemiBold)
                     .foregroundColor(AppColors.textSecondary)
+                    .accessibilityAddTraits(.isHeader)
 
                 HStack {
                     HStack(spacing: AppSpacing.lg) {
                         Image(systemName: biometricType == "Face ID" ? "faceid" : "touchid")
                             .foregroundColor(AppColors.magenta500)
+                            .accessibilityHidden(true)
                         Text("\(biometricType) Unlock")
                             .font(AppTypography.body)
                             .foregroundColor(AppColors.textSecondary)
@@ -266,6 +349,7 @@ struct ProfileScreen: View {
                     Toggle("", isOn: $biometricEnabled)
                         .tint(AppColors.magenta500)
                         .labelsHidden()
+                        .accessibilityLabel("\(biometricType) Unlock, \(biometricEnabled ? "enabled" : "disabled")")
                 }
 
                 Divider().foregroundColor(AppColors.borderPrimary)
@@ -275,6 +359,7 @@ struct ProfileScreen: View {
                         HStack(spacing: AppSpacing.lg) {
                             Image(systemName: "lock")
                                 .foregroundColor(AppColors.magenta500)
+                                .accessibilityHidden(true)
                             Text("Change Password")
                                 .font(AppTypography.body)
                                 .foregroundColor(AppColors.textSecondary)
@@ -283,10 +368,56 @@ struct ProfileScreen: View {
                         Image(systemName: "chevron.right")
                             .foregroundColor(AppColors.gray400)
                             .font(.system(size: 14))
+                            .accessibilityHidden(true)
                     }
                 }
+                .accessibilityLabel("Change Password")
             }
         }
+    }
+
+    private var legalCard: some View {
+        CardView {
+            VStack(alignment: .leading, spacing: AppSpacing.lg) {
+                Text("Legal")
+                    .font(AppTypography.labelSemiBold)
+                    .foregroundColor(AppColors.textSecondary)
+                    .accessibilityAddTraits(.isHeader)
+
+                legalRow(icon: "doc.text", title: "Privacy Policy", url: "https://ultinizer.cloud/privacy")
+
+                Divider().foregroundColor(AppColors.borderPrimary)
+
+                legalRow(icon: "doc.plaintext", title: "Terms of Service", url: "https://ultinizer.cloud/terms")
+
+                Divider().foregroundColor(AppColors.borderPrimary)
+
+                legalRow(icon: "questionmark.circle", title: "Support", url: "https://ultinizer.cloud/support")
+            }
+        }
+    }
+
+    private func legalRow(icon: String, title: String, url: String) -> some View {
+        Button(action: {
+            safariURL = URL(string: url)
+        }) {
+            HStack {
+                HStack(spacing: AppSpacing.lg) {
+                    Image(systemName: icon)
+                        .foregroundColor(AppColors.magenta500)
+                        .accessibilityHidden(true)
+                    Text(title)
+                        .font(AppTypography.body)
+                        .foregroundColor(AppColors.textSecondary)
+                }
+                Spacer()
+                Image(systemName: "arrow.up.right.square")
+                    .foregroundColor(AppColors.gray400)
+                    .font(.system(size: 14))
+                    .accessibilityHidden(true)
+            }
+        }
+        .accessibilityLabel("Open \(title)")
     }
 
     private var avatarURL: URL? {
@@ -307,4 +438,46 @@ struct ProfileScreen: View {
             // Silent failure
         }
     }
+
+    @MainActor
+    private func performDeleteAccount() async {
+        guard !deletePassword.isEmpty else {
+            deleteError = "Password is required"
+            showPasswordPrompt = true
+            return
+        }
+
+        isDeletingAccount = true
+        defer { isDeletingAccount = false }
+
+        do {
+            try await authManager.deleteAccount(password: deletePassword)
+            deletePassword = ""
+            deleteError = ""
+        } catch let error as APIError {
+            deleteError = error.userMessage
+            deletePassword = ""
+            showPasswordPrompt = true
+        } catch {
+            deleteError = "Failed to delete account. Please try again."
+            deletePassword = ""
+            showPasswordPrompt = true
+        }
+    }
+}
+
+// MARK: - Safari View
+
+struct SafariView: UIViewControllerRepresentable {
+    let url: URL
+
+    func makeUIViewController(context: Context) -> SFSafariViewController {
+        SFSafariViewController(url: url)
+    }
+
+    func updateUIViewController(_ uiViewController: SFSafariViewController, context: Context) {}
+}
+
+extension URL: @retroactive Identifiable {
+    public var id: String { absoluteString }
 }

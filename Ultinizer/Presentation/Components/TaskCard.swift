@@ -108,6 +108,7 @@ struct TaskCard: View {
         Image(systemName: task.status.iconName)
             .font(.system(size: 22))
             .foregroundColor(statusColor)
+            .accessibilityLabel("Status: \(task.status.displayName). Double tap to advance status")
     }
 
     private var statusColor: Color {

@@ -6,16 +6,26 @@ struct TaskDetailScreen: View {
     @State private var commentText = ""
     @State private var showDeleteAlert = false
     @State private var deleteCommentId: String?
+    @State private var reportTargetId: String?
+    @State private var reportTargetType: ReportTargetType?
+    @State private var showReportReasonSheet = false
+    @State private var showReportDescriptionAlert = false
+    @State private var reportDescription = ""
+    @State private var selectedReportReason: ReportReason?
+    @State private var showReportConfirmation = false
+    @State private var reportError = ""
 
     private let router: AppRouter
     private let container: AppContainer
+    private let authManager: AuthManager
 
     @Environment(\.colorScheme) private var colorScheme
 
-    init(taskId: String, container: AppContainer, router: AppRouter) {
+    init(taskId: String, container: AppContainer, router: AppRouter, authManager: AuthManager) {
         self.taskId = taskId
         self.container = container
         self.router = router
+        self.authManager = authManager
         _viewModel = State(initialValue: TaskDetailViewModel(
             getTaskUseCase: container.getTaskUseCase,
             updateTaskUseCase: container.updateTaskUseCase,
@@ -39,6 +49,7 @@ struct TaskDetailScreen: View {
                     .font(AppTypography.bodyMedium)
                     .foregroundColor(AppColors.magenta500)
                 }
+                .accessibilityLabel("Go back")
                 Spacer()
                 if viewModel.task != nil {
                     HStack(spacing: AppSpacing.lg) {
@@ -49,11 +60,13 @@ struct TaskDetailScreen: View {
                                 .font(.system(size: 22))
                                 .foregroundColor(AppColors.gray400)
                         }
+                        .accessibilityLabel("Edit task")
                         Button(action: { showDeleteAlert = true }) {
                             Image(systemName: "trash")
                                 .font(.system(size: 22))
                                 .foregroundColor(AppColors.red500)
                         }
+                        .accessibilityLabel("Delete task")
                     }
                 }
             }
@@ -80,15 +93,19 @@ struct TaskDetailScreen: View {
                             .font(AppTypography.largeTitle)
                             .foregroundColor(AppColors.textPrimary)
                             .padding(.bottom, AppSpacing.md)
+                            .accessibilityAddTraits(.isHeader)
 
                         // Meta badges
                         HStack(spacing: AppSpacing.md) {
                             PriorityBadge(priority: task.priority)
+                                .accessibilityLabel("Priority: \(task.priority.displayName)")
                             if let category = task.category {
                                 BadgeView(label: category.name, color: .gray)
+                                    .accessibilityLabel("Category: \(category.name)")
                             }
                             if task.assignmentType == .shared {
                                 BadgeView(label: "Shared", color: .magenta)
+                                    .accessibilityLabel("Assignment: Shared")
                             }
                         }
                         .padding(.bottom, AppSpacing.xl)
@@ -104,6 +121,7 @@ struct TaskDetailScreen: View {
                                     Text("Description")
                                         .font(AppTypography.labelSemiBold)
                                         .foregroundColor(AppColors.textSecondary)
+                                        .accessibilityAddTraits(.isHeader)
                                     Text(desc)
                                         .font(AppTypography.label)
                                         .foregroundColor(AppColors.textSecondary)
@@ -127,6 +145,12 @@ struct TaskDetailScreen: View {
                         // Subtasks
                         if !task.subtasks.isEmpty {
                             subtasksCard(subtasks: task.subtasks)
+                                .padding(.bottom, AppSpacing.xl)
+                        }
+
+                        // Attachments
+                        if !task.attachments.isEmpty {
+                            attachmentsSection(attachments: task.attachments)
                                 .padding(.bottom, AppSpacing.xl)
                         }
 
@@ -169,6 +193,44 @@ struct TaskDetailScreen: View {
                 deleteCommentId = nil
             }
         }
+        .confirmationDialog("Report Content", isPresented: $showReportReasonSheet, titleVisibility: .visible) {
+            ForEach(ReportReason.allCases, id: \.self) { reason in
+                Button(reason.displayName) {
+                    selectedReportReason = reason
+                    if reason == .other {
+                        showReportDescriptionAlert = true
+                    } else {
+                        Task { await submitReport(reason: reason, description: nil) }
+                    }
+                }
+            }
+            Button("Cancel", role: .cancel) {
+                reportTargetId = nil
+                reportTargetType = nil
+            }
+        }
+        .alert("Describe the issue", isPresented: $showReportDescriptionAlert) {
+            TextField("Description", text: $reportDescription)
+            Button("Cancel", role: .cancel) {
+                reportDescription = ""
+                reportTargetId = nil
+                reportTargetType = nil
+            }
+            Button("Submit") {
+                if let reason = selectedReportReason {
+                    let desc = reportDescription.isEmpty ? nil : reportDescription
+                    Task { await submitReport(reason: reason, description: desc) }
+                }
+                reportDescription = ""
+            }
+        } message: {
+            Text("Please describe why you are reporting this content.")
+        }
+        .alert("Report Submitted", isPresented: $showReportConfirmation) {
+            Button("OK", role: .cancel) {}
+        } message: {
+            Text("Report submitted. We'll review this within 24 hours.")
+        }
         .task {
             await viewModel.loadTask(id: taskId)
         }
@@ -182,6 +244,7 @@ struct TaskDetailScreen: View {
                 Text("Status")
                     .font(AppTypography.labelSemiBold)
                     .foregroundColor(AppColors.textSecondary)
+                    .accessibilityAddTraits(.isHeader)
                 HStack(spacing: AppSpacing.md) {
                     ForEach(TaskStatus.allCases, id: \.self) { status in
                         Button(action: {
@@ -190,6 +253,7 @@ struct TaskDetailScreen: View {
                             VStack(spacing: AppSpacing.xs) {
                                 Image(systemName: status.iconName)
                                     .font(.system(size: 18))
+                                    .accessibilityHidden(true)
                                 Text(status.displayName)
                                     .font(AppTypography.captionMedium)
                             }
@@ -210,6 +274,7 @@ struct TaskDetailScreen: View {
                                     )
                             )
                         }
+                        .accessibilityLabel("Set status to \(status.displayName)\(task.status == status ? ", currently selected" : "")")
                     }
                 }
             }
@@ -222,6 +287,7 @@ struct TaskDetailScreen: View {
                 Image(systemName: "calendar")
                     .font(.system(size: 20))
                     .foregroundColor(isOverdue ? AppColors.red500 : AppColors.magenta500)
+                    .accessibilityHidden(true)
                 VStack(alignment: .leading, spacing: AppSpacing.xxs) {
                     Text("Due Date")
                         .font(AppTypography.labelSemiBold)
@@ -231,6 +297,8 @@ struct TaskDetailScreen: View {
                         .foregroundColor(isOverdue ? AppColors.red500 : AppColors.textSecondary)
                 }
             }
+            .accessibilityElement(children: .combine)
+            .accessibilityLabel("Due date: \(dueDate.formatted(date: .complete, time: .shortened))\(isOverdue ? ", overdue" : "")")
         }
     }
 
@@ -240,9 +308,11 @@ struct TaskDetailScreen: View {
                 Text("Assigned To")
                     .font(AppTypography.labelSemiBold)
                     .foregroundColor(AppColors.textSecondary)
+                    .accessibilityAddTraits(.isHeader)
                 ForEach(assignees, id: \.userId) { assignee in
                     HStack(spacing: AppSpacing.md) {
                         AvatarView(name: assignee.user?.displayName ?? "?", size: .sm)
+                            .accessibilityHidden(true)
                         Text(assignee.user?.displayName ?? "Unknown")
                             .font(AppTypography.label)
                             .foregroundColor(AppColors.textSecondary)
@@ -252,6 +322,8 @@ struct TaskDetailScreen: View {
                                 .foregroundColor(AppColors.gray400)
                         }
                     }
+                    .accessibilityElement(children: .combine)
+                    .accessibilityLabel("Assigned to \(assignee.user?.displayName ?? "Unknown")")
                 }
             }
         }
@@ -265,6 +337,8 @@ struct TaskDetailScreen: View {
                 Text("Subtasks (\(completed)/\(subtasks.count))")
                     .font(AppTypography.labelSemiBold)
                     .foregroundColor(AppColors.textSecondary)
+                    .accessibilityLabel("Subtasks: \(completed) of \(subtasks.count) completed")
+                    .accessibilityAddTraits(.isHeader)
                 ForEach(sorted) { subtask in
                     Button(action: {
                         Task { await viewModel.toggleSubtask(subtask) }
@@ -273,6 +347,7 @@ struct TaskDetailScreen: View {
                             Image(systemName: subtask.isCompleted ? "checkmark.square.fill" : "square")
                                 .font(.system(size: 20))
                                 .foregroundColor(subtask.isCompleted ? AppColors.green500 : AppColors.gray400)
+                                .accessibilityHidden(true)
                             Text(subtask.title)
                                 .font(AppTypography.label)
                                 .foregroundColor(subtask.isCompleted ? AppColors.gray400 : AppColors.textSecondary)
@@ -281,6 +356,59 @@ struct TaskDetailScreen: View {
                         .opacity(viewModel.togglingSubtasks.contains(subtask.id) ? 0.5 : 1)
                     }
                     .disabled(viewModel.togglingSubtasks.contains(subtask.id))
+                    .accessibilityLabel("\(subtask.title), \(subtask.isCompleted ? "completed" : "not completed")")
+                    .accessibilityHint("Double tap to toggle completion")
+                }
+            }
+        }
+    }
+
+    private func attachmentsSection(attachments: [Attachment]) -> some View {
+        let imageAttachments = attachments.filter { $0.isImage }
+        return Group {
+            if !imageAttachments.isEmpty {
+                VStack(alignment: .leading, spacing: AppSpacing.lg) {
+                    Text("Attachments (\(imageAttachments.count))")
+                        .font(AppTypography.bodySemiBold)
+                        .foregroundColor(AppColors.textPrimary)
+                        .accessibilityAddTraits(.isHeader)
+
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack(spacing: AppSpacing.md) {
+                            ForEach(imageAttachments) { attachment in
+                                let imageURL = URL(string: container.baseURL.absoluteString + attachment.url)
+                                AsyncImage(url: imageURL) { phase in
+                                    switch phase {
+                                    case .success(let image):
+                                        image
+                                            .resizable()
+                                            .aspectRatio(contentMode: .fill)
+                                    case .failure:
+                                        Image(systemName: "photo")
+                                            .foregroundColor(AppColors.gray400)
+                                    case .empty:
+                                        ProgressView()
+                                    @unknown default:
+                                        EmptyView()
+                                    }
+                                }
+                                .frame(width: 120, height: 120)
+                                .clipShape(RoundedRectangle(cornerRadius: AppRadius.md))
+                                .accessibilityLabel("Task attachment photo: \(attachment.originalName)")
+                                .contextMenu {
+                                    if attachment.uploadedById != authManager.user?.id {
+                                        Button(action: {
+                                            reportTargetId = attachment.id
+                                            reportTargetType = .attachment
+                                            showReportReasonSheet = true
+                                        }) {
+                                            Label("Report", systemImage: "exclamationmark.triangle")
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -291,6 +419,8 @@ struct TaskDetailScreen: View {
             Text("Comments (\(viewModel.comments.count))")
                 .font(AppTypography.bodySemiBold)
                 .foregroundColor(AppColors.textPrimary)
+                .accessibilityLabel("Comments: \(viewModel.comments.count)")
+                .accessibilityAddTraits(.isHeader)
 
             ForEach(viewModel.rootComments) { comment in
                 commentItem(comment, level: 0)
@@ -302,9 +432,11 @@ struct TaskDetailScreen: View {
     }
 
     private func commentItem(_ comment: Comment, level: Int) -> some View {
-        VStack(alignment: .leading, spacing: AppSpacing.xs) {
+        let isOwnComment = comment.authorId == authManager.user?.id
+        return VStack(alignment: .leading, spacing: AppSpacing.xs) {
             HStack(spacing: AppSpacing.md) {
                 AvatarView(name: comment.author?.displayName ?? "?", size: .sm)
+                    .accessibilityHidden(true)
                 VStack(alignment: .leading, spacing: 2) {
                     Text(comment.author?.displayName ?? "Unknown")
                         .font(AppTypography.labelSemiBold)
@@ -325,15 +457,32 @@ struct TaskDetailScreen: View {
                         .font(AppTypography.caption)
                         .foregroundColor(AppColors.gray400)
                 }
-                Button(action: { deleteCommentId = comment.id }) {
-                    Text("Delete")
-                        .font(AppTypography.caption)
-                        .foregroundColor(AppColors.gray400)
+                .accessibilityLabel("Reply to \(comment.author?.displayName ?? "comment")")
+
+                if isOwnComment {
+                    Button(action: { deleteCommentId = comment.id }) {
+                        Text("Delete")
+                            .font(AppTypography.caption)
+                            .foregroundColor(AppColors.gray400)
+                    }
+                    .accessibilityLabel("Delete comment")
+                } else {
+                    Button(action: {
+                        reportTargetId = comment.id
+                        reportTargetType = .comment
+                        showReportReasonSheet = true
+                    }) {
+                        Text("Report")
+                            .font(AppTypography.caption)
+                            .foregroundColor(AppColors.gray400)
+                    }
+                    .accessibilityLabel("Report comment by \(comment.author?.displayName ?? "unknown")")
                 }
             }
         }
         .padding(.leading, CGFloat(level) * 24)
         .padding(.bottom, AppSpacing.md)
+        .accessibilityElement(children: .contain)
     }
 
     private var commentInputBar: some View {
@@ -349,6 +498,7 @@ struct TaskDetailScreen: View {
                             .font(.system(size: 12))
                             .foregroundColor(AppColors.gray400)
                     }
+                    .accessibilityLabel("Cancel reply")
                 }
                 .padding(.horizontal, AppSpacing.xl)
                 .padding(.vertical, AppSpacing.xs)
@@ -363,6 +513,7 @@ struct TaskDetailScreen: View {
                     .padding(.vertical, AppSpacing.lg)
                     .background(colorScheme == .dark ? AppColors.gray700 : AppColors.gray100)
                     .clipShape(RoundedRectangle(cornerRadius: AppRadius.xl))
+                    .accessibilityLabel("Comment text field")
 
                 Button(action: {
                     guard !commentText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return }
@@ -379,10 +530,32 @@ struct TaskDetailScreen: View {
                         )
                 }
                 .disabled(commentText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+                .accessibilityLabel("Send comment")
             }
             .padding(.horizontal, AppSpacing.xl)
             .padding(.vertical, AppSpacing.md)
             .background(colorScheme == .dark ? AppColors.gray800 : .white)
         }
+    }
+
+    // MARK: - Report
+
+    @MainActor
+    private func submitReport(reason: ReportReason, description: String?) async {
+        guard let targetId = reportTargetId, let targetType = reportTargetType else { return }
+        do {
+            try await container.reportRepository.createReport(
+                targetType: targetType,
+                targetId: targetId,
+                reason: reason,
+                description: description
+            )
+            showReportConfirmation = true
+        } catch {
+            reportError = "Failed to submit report"
+        }
+        reportTargetId = nil
+        reportTargetType = nil
+        selectedReportReason = nil
     }
 }

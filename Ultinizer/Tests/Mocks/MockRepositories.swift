@@ -48,6 +48,8 @@ final class MockAuthRepository: AuthRepositoryProtocol, @unchecked Sendable {
     func changePassword(currentPassword: String, newPassword: String) async throws {
         if let error = changePasswordError { throw error }
     }
+
+    func deleteAccount(password: String) async throws {}
 }
 
 final class MockTaskRepository: TaskRepositoryProtocol, @unchecked Sendable {

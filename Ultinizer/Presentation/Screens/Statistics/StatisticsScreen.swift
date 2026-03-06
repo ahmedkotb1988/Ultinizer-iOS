@@ -77,6 +77,8 @@ struct StatisticsScreen: View {
             }
             .frame(maxWidth: .infinity)
         }
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("\(label): \(value)")
     }
 
     private func weeklyChart(trend: [WeeklyTrendItem]) -> some View {

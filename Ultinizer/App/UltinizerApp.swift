@@ -29,7 +29,8 @@ struct UltinizerApp: App {
                                 getMeUseCase: container.getMeUseCase,
                                 householdRepository: container.householdRepository,
                                 keychainService: container.keychainService,
-                                userDefaultsService: container.userDefaultsService
+                                userDefaultsService: container.userDefaultsService,
+                                authRepository: container.authRepository
                             )
                             await manager.bootstrap()
                             authManager = manager
@@ -180,7 +181,7 @@ struct MainTabView: View {
     private func routeDestination(_ route: Route) -> some View {
         switch route {
         case .taskDetail(let id):
-            TaskDetailScreen(taskId: id, container: container, router: router)
+            TaskDetailScreen(taskId: id, container: container, router: router, authManager: authManager)
         case .createTask:
             EmptyView() // Handled via sheet
         case .editTask(let id):

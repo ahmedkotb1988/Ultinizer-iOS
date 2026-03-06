@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		AA0000000000000000000002 /* ReportRepositoryProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000001 /* ReportRepositoryProtocol.swift */; };
+		AA0000000000000000000004 /* DeleteAccountUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000003 /* DeleteAccountUseCase.swift */; };
+		AA0000000000000000000006 /* ReportRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000005 /* ReportRepository.swift */; };
 		01254ADE9FE51110F78707FF /* NotificationRepositoryProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3CF48541D8270F5BA07904A /* NotificationRepositoryProtocol.swift */; };
 		0203C0BF75AA5FB94DE481F2 /* StatsRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = F937CC6A775A2C1CD423E65A /* StatsRepository.swift */; };
 		03A88F357C4C68881B5150A0 /* AuthInterceptor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B1D07D1EB96B1DAA8AA6163 /* AuthInterceptor.swift */; };
@@ -129,6 +132,9 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		AA0000000000000000000001 /* ReportRepositoryProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReportRepositoryProtocol.swift; sourceTree = "<group>"; };
+		AA0000000000000000000003 /* DeleteAccountUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeleteAccountUseCase.swift; sourceTree = "<group>"; };
+		AA0000000000000000000005 /* ReportRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReportRepository.swift; sourceTree = "<group>"; };
 		00280DA24BE6A36F194EE042 /* PrimaryButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrimaryButton.swift; sourceTree = "<group>"; };
 		05234294959F23A544FCBF2E /* DashboardViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardViewModel.swift; sourceTree = "<group>"; };
 		06C549FED0857380EC84DCAB /* CreateTaskViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateTaskViewModel.swift; sourceTree = "<group>"; };
@@ -354,6 +360,7 @@
 			isa = PBXGroup;
 			children = (
 				67702F3A0E070A0026C0035C /* ChangePasswordUseCase.swift */,
+				AA0000000000000000000003 /* DeleteAccountUseCase.swift */,
 				2E070F91515B4EB7955555B5 /* ForgotPasswordUseCase.swift */,
 				B3F909E5F0EBF626DA8B515B /* GetMeUseCase.swift */,
 				0E608160B802548777C73A06 /* LoginUseCase.swift */,
@@ -476,6 +483,7 @@
 				4481E77D291E0CE035BF886D /* CommentRepositoryProtocol.swift */,
 				13B9BEC06F715A40D96D1C00 /* HouseholdRepositoryProtocol.swift */,
 				A3CF48541D8270F5BA07904A /* NotificationRepositoryProtocol.swift */,
+				AA0000000000000000000001 /* ReportRepositoryProtocol.swift */,
 				15276F3C57FA8F07A0ADCDF3 /* StatsRepositoryProtocol.swift */,
 				B755F1608D316AA4E1BE0459 /* SubtaskRepositoryProtocol.swift */,
 				F42DC0BB907E42C457C98CD4 /* TaskRepositoryProtocol.swift */,
@@ -772,6 +780,7 @@
 				3F53FB9549DEA27ED3613859 /* CommentRepository.swift */,
 				3BD5435F2A84F9EF057B9DB8 /* HouseholdRepository.swift */,
 				CA1378F6957F5DB53E2A6138 /* NotificationRepository.swift */,
+				AA0000000000000000000005 /* ReportRepository.swift */,
 				F937CC6A775A2C1CD423E65A /* StatsRepository.swift */,
 				CCC1AE789E40C5A6FC37CFD6 /* SubtaskRepository.swift */,
 				675E41F55D7610FC817ACB24 /* TaskRepository.swift */,
@@ -908,6 +917,7 @@
 				4290BCB5E3FD6B57BD17B644 /* DashboardData.swift in Sources */,
 				49387DAC275B82C5B57A27F4 /* DashboardScreen.swift in Sources */,
 				7EC32A7D8CF4EF2B38F5C7C1 /* DashboardViewModel.swift in Sources */,
+				AA0000000000000000000004 /* DeleteAccountUseCase.swift in Sources */,
 				3E58B1E7302F27E17D37BAE2 /* DeleteCommentUseCase.swift in Sources */,
 				8DC9B89E4B3B0FCA02EB9B10 /* DeleteTaskUseCase.swift in Sources */,
 				E3E96516F404AAC3A31D4AF7 /* EditProfileScreen.swift in Sources */,
@@ -938,6 +948,8 @@
 				31214FDA5B0824C11BE0A02C /* PasswordValidator.swift in Sources */,
 				4CF5FB98A5A8D7D10C910409 /* PrimaryButton.swift in Sources */,
 				E317F707E56FA7A287FA0E7E /* ProfileScreen.swift in Sources */,
+				AA0000000000000000000006 /* ReportRepository.swift in Sources */,
+				AA0000000000000000000002 /* ReportRepositoryProtocol.swift in Sources */,
 				C66646CF44AF77B23DAD1222 /* RegisterScreen.swift in Sources */,
 				D78593A9EF06E97D612689AE /* RegisterUseCase.swift in Sources */,
 				31E56D1F07A7582CEAD7A221 /* RegisterViewModel.swift in Sources */,
@@ -1164,12 +1176,17 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 565M5HXL26;
 				INFOPLIST_FILE = Ultinizer/Resources/Info.plist;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.lifestyle";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = cloud.ultinizer.app;
 				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -1183,12 +1200,17 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 565M5HXL26;
 				INFOPLIST_FILE = Ultinizer/Resources/Info.plist;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.lifestyle";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = cloud.ultinizer.app;
 				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};

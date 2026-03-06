@@ -15,6 +15,7 @@ final class AuthManager {
     private let householdRepository: HouseholdRepositoryProtocol
     private let keychainService: KeychainServiceProtocol
     private let userDefaultsService: UserDefaultsServiceProtocol
+    private let authRepository: AuthRepositoryProtocol
 
     init(
         loginUseCase: LoginUseCaseProtocol,
@@ -23,7 +24,8 @@ final class AuthManager {
         getMeUseCase: GetMeUseCaseProtocol,
         householdRepository: HouseholdRepositoryProtocol,
         keychainService: KeychainServiceProtocol,
-        userDefaultsService: UserDefaultsServiceProtocol
+        userDefaultsService: UserDefaultsServiceProtocol,
+        authRepository: AuthRepositoryProtocol
     ) {
         self.loginUseCase = loginUseCase
         self.registerUseCase = registerUseCase
@@ -32,6 +34,7 @@ final class AuthManager {
         self.householdRepository = householdRepository
         self.keychainService = keychainService
         self.userDefaultsService = userDefaultsService
+        self.authRepository = authRepository
     }
 
     func bootstrap() async {
@@ -90,6 +93,15 @@ final class AuthManager {
         user = nil
         household = nil
         userDefaultsService.remove(forKey: UserDefaultsService.Keys.cachedUser)
+    }
+
+    func deleteAccount(password: String) async throws {
+        try await authRepository.deleteAccount(password: password)
+        user = nil
+        household = nil
+        userDefaultsService.remove(forKey: UserDefaultsService.Keys.cachedUser)
+        userDefaultsService.remove(forKey: UserDefaultsService.Keys.biometricEnabled)
+        userDefaultsService.remove(forKey: UserDefaultsService.Keys.onboardingCompleted)
     }
 
     func createHousehold(name: String) async throws {

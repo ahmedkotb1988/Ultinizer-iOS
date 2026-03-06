@@ -76,6 +76,7 @@ struct ForgotPasswordScreen: View {
                         .font(AppTypography.labelSemiBold)
                         .foregroundColor(AppColors.magenta500)
                 }
+                .accessibilityLabel("Go back to sign in")
                 .padding(.top, AppSpacing.xxxl)
 
                 Spacer(minLength: 40)

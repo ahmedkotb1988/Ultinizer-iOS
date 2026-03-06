@@ -44,6 +44,7 @@ struct DashboardScreen: View {
                                 size: .lg
                             )
                         }
+                        .accessibilityLabel("Go to profile")
                     }
                     .padding(.horizontal, AppSpacing.screenHorizontal)
                     .padding(.top, AppSpacing.xl)
@@ -57,6 +58,7 @@ struct DashboardScreen: View {
                             iconColor: AppColors.red500,
                             titleColor: AppColors.red500
                         )
+                        .accessibilityLabel("Overdue tasks: \(viewModel.overdueTasks.count)")
                         ForEach(viewModel.overdueTasks.prefix(3)) { task in
                             TaskCard(task: task, onTap: {
                                 router.navigate(to: .taskDetail(id: task.id))
@@ -81,6 +83,7 @@ struct DashboardScreen: View {
                                 .font(AppTypography.labelMedium)
                                 .foregroundColor(AppColors.magenta500)
                         }
+                        .accessibilityLabel("See all tasks")
                         .padding(.trailing, AppSpacing.screenHorizontal)
                     }
 
@@ -140,6 +143,7 @@ struct DashboardScreen: View {
             FABView {
                 router.showCreateTask = true
             }
+            .accessibilityLabel("Create new task")
         }
         .background(AppColors.backgroundSecondary)
         .navigationBarHidden(true)

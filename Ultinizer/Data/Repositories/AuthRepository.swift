@@ -85,4 +85,10 @@ final class AuthRepository: AuthRepositoryProtocol, @unchecked Sendable {
         let request = ChangePasswordRequestDTO(currentPassword: currentPassword, newPassword: newPassword)
         try await apiClient.request(endpoint: .changePassword, body: request)
     }
+
+    func deleteAccount(password: String) async throws {
+        let request = DeleteAccountRequestDTO(password: password)
+        try await apiClient.request(endpoint: .deleteAccount, body: request)
+        try await keychainService.clearTokens()
+    }
 }

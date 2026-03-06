@@ -41,6 +41,7 @@ struct TaskListScreen: View {
                                 Image(systemName: "xmark.circle.fill")
                                     .foregroundColor(AppColors.gray400)
                             }
+                            .accessibilityLabel("Clear search")
                         }
                     }
                     .padding(.horizontal, AppSpacing.xl)
@@ -157,6 +158,7 @@ struct TaskListScreen: View {
             FABView {
                 router.showCreateTask = true
             }
+            .accessibilityLabel("Create new task")
         }
         .background(AppColors.backgroundSecondary)
         .navigationBarHidden(true)

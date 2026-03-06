@@ -101,6 +101,7 @@ struct CalendarScreen: View {
                     Image(systemName: "chevron.left")
                         .foregroundColor(AppColors.magenta500)
                 }
+                .accessibilityLabel("Previous month")
                 Spacer()
                 Text(currentMonth.formatted(.dateTime.month(.wide).year()))
                     .font(AppTypography.bodySemiBold)
@@ -110,6 +111,7 @@ struct CalendarScreen: View {
                     Image(systemName: "chevron.right")
                         .foregroundColor(AppColors.magenta500)
                 }
+                .accessibilityLabel("Next month")
             }
             .padding(.horizontal, AppSpacing.screenHorizontal)
             .padding(.top, AppSpacing.xl)
@@ -170,11 +172,14 @@ struct CalendarScreen: View {
                     Circle()
                         .fill(isSelected ? .white : AppColors.magenta500)
                         .frame(width: 4, height: 4)
+                        .accessibilityHidden(true)
                 } else {
                     Color.clear.frame(width: 4, height: 4)
+                        .accessibilityHidden(true)
                 }
             }
         }
+        .accessibilityLabel("\(date.formatted(.dateTime.month(.wide).day()))\(isToday ? ", today" : "")\(hasTasks ? ", has tasks" : "")\(isSelected ? ", selected" : "")")
         .frame(height: 40)
     }
 

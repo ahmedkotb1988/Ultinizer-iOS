@@ -23,4 +23,5 @@ protocol AuthRepositoryProtocol: Sendable {
     func forgotPassword(email: String) async throws
     func resetPassword(token: String, password: String) async throws
     func changePassword(currentPassword: String, newPassword: String) async throws
+    func deleteAccount(password: String) async throws
 }

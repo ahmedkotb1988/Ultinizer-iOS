@@ -58,6 +58,12 @@ enum APIEndpoint {
     case dashboardStats
     case overviewStats
 
+    // Reports
+    case createReport
+
+    // Account
+    case deleteAccount
+
     // Push token
     case pushToken
 
@@ -120,6 +126,12 @@ enum APIEndpoint {
         case .dashboardStats: return "/api/stats/dashboard"
         case .overviewStats: return "/api/stats/overview"
 
+        // Reports
+        case .createReport: return "/api/reports"
+
+        // Account
+        case .deleteAccount: return "/api/auth/me"
+
         // Push
         case .pushToken: return "/api/users/push-token"
         }
@@ -134,7 +146,7 @@ enum APIEndpoint {
              .createCategory,
              .uploadAttachment, .uploadAvatar,
              .markCommentSeen, .markAllNotificationsRead,
-             .pushToken, .reorderTasks:
+             .pushToken, .reorderTasks, .createReport:
             return .POST
         case .me, .myHousehold, .task, .taskTemplates,
              .getTasks, .getSubtasks, .getComments,
@@ -145,7 +157,7 @@ enum APIEndpoint {
         case .updateMe, .subtask, .comment, .category,
              .markNotificationRead:
             return .PATCH
-        case .deleteAttachment:
+        case .deleteAttachment, .deleteAccount:
             return .DELETE
         }
     }

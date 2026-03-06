@@ -21,6 +21,7 @@ struct RegisterScreen: View {
                             .font(.system(size: 24))
                             .foregroundColor(AppColors.magenta500)
                     }
+                    .accessibilityLabel("Go back to sign in")
                     .padding(.bottom, AppSpacing.xl)
 
                     Text("Create Account")
@@ -94,6 +95,7 @@ struct RegisterScreen: View {
                             .font(AppTypography.labelSemiBold)
                             .foregroundColor(AppColors.magenta500)
                     }
+                    .accessibilityLabel("Go to sign in")
                 }
                 .frame(maxWidth: .infinity)
                 .padding(.top, AppSpacing.xxxl)
