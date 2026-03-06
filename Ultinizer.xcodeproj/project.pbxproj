@@ -7,9 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		AA0000000000000000000002 /* ReportRepositoryProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000001 /* ReportRepositoryProtocol.swift */; };
-		AA0000000000000000000004 /* DeleteAccountUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000003 /* DeleteAccountUseCase.swift */; };
-		AA0000000000000000000006 /* ReportRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000005 /* ReportRepository.swift */; };
 		01254ADE9FE51110F78707FF /* NotificationRepositoryProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3CF48541D8270F5BA07904A /* NotificationRepositoryProtocol.swift */; };
 		0203C0BF75AA5FB94DE481F2 /* StatsRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = F937CC6A775A2C1CD423E65A /* StatsRepository.swift */; };
 		03A88F357C4C68881B5150A0 /* AuthInterceptor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B1D07D1EB96B1DAA8AA6163 /* AuthInterceptor.swift */; };
@@ -25,7 +22,6 @@
 		19780965288FC4BD5670FD60 /* TextInput.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84845EADF77CB328082A4187 /* TextInput.swift */; };
 		1AD1D8D080C2DF20FEC0500F /* CardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72055775D520D6C800839C98 /* CardView.swift */; };
 		1D865F192E7E3186DEEF3377 /* ToastView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE2C278F41216262CD439AE8 /* ToastView.swift */; };
-		A1B2C3D4E5F60718192A3B4C /* CameraView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4E5F6071819A1B2C3D40001 /* CameraView.swift */; };
 		25D8629FF2F7C124FDBFF890 /* HouseholdRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3BD5435F2A84F9EF057B9DB8 /* HouseholdRepository.swift */; };
 		272936A54A9020166C617239 /* TaskCategory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D260F399AAFFE797A6CB93F /* TaskCategory.swift */; };
 		2D171F385672C9144E3DE2BD /* TaskCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFC243E9D0CB318A42C0DAD6 /* TaskCard.swift */; };
@@ -87,7 +83,11 @@
 		9D94EC91B2B3DD4AB01D55B3 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E1B74B0ED3A5BC6F765B8291 /* Assets.xcassets */; };
 		9EF34539B9665F7C6BEC1A61 /* APIError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 484E0A9D65114D6B51F3D0AC /* APIError.swift */; };
 		A057874ADE503C4D82F4FC19 /* CommentRepositoryProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4481E77D291E0CE035BF886D /* CommentRepositoryProtocol.swift */; };
+		A1B2C3D4E5F60718192A3B4C /* CameraView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4E5F6071819A1B2C3D40001 /* CameraView.swift */; };
 		A2D23F56986B289CF9FECB83 /* NotificationRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = CA1378F6957F5DB53E2A6138 /* NotificationRepository.swift */; };
+		AA0000000000000000000002 /* ReportRepositoryProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000001 /* ReportRepositoryProtocol.swift */; };
+		AA0000000000000000000004 /* DeleteAccountUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000003 /* DeleteAccountUseCase.swift */; };
+		AA0000000000000000000006 /* ReportRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000005 /* ReportRepository.swift */; };
 		AC91617FA44B52E417C94356 /* CalendarScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BE85095B29A44CBDF7DE324 /* CalendarScreen.swift */; };
 		AF70F11F2C54FF0FDEAB5CBD /* TaskRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 675E41F55D7610FC817ACB24 /* TaskRepository.swift */; };
 		C10E77F9A8A9D397290FAF54 /* LoginUseCaseTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16B2774F0D0ACEAFE6D18C08 /* LoginUseCaseTests.swift */; };
@@ -133,9 +133,6 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		AA0000000000000000000001 /* ReportRepositoryProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReportRepositoryProtocol.swift; sourceTree = "<group>"; };
-		AA0000000000000000000003 /* DeleteAccountUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeleteAccountUseCase.swift; sourceTree = "<group>"; };
-		AA0000000000000000000005 /* ReportRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReportRepository.swift; sourceTree = "<group>"; };
 		00280DA24BE6A36F194EE042 /* PrimaryButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrimaryButton.swift; sourceTree = "<group>"; };
 		05234294959F23A544FCBF2E /* DashboardViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardViewModel.swift; sourceTree = "<group>"; };
 		06C549FED0857380EC84DCAB /* CreateTaskViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateTaskViewModel.swift; sourceTree = "<group>"; };
@@ -221,6 +218,9 @@
 		A3CF48541D8270F5BA07904A /* NotificationRepositoryProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationRepositoryProtocol.swift; sourceTree = "<group>"; };
 		A5C6E1F85AB9B230F3741A0F /* AttachmentRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AttachmentRepository.swift; sourceTree = "<group>"; };
 		A9F7E0A002570AC2167650C4 /* TaskMapperTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskMapperTests.swift; sourceTree = "<group>"; };
+		AA0000000000000000000001 /* ReportRepositoryProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReportRepositoryProtocol.swift; sourceTree = "<group>"; };
+		AA0000000000000000000003 /* DeleteAccountUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeleteAccountUseCase.swift; sourceTree = "<group>"; };
+		AA0000000000000000000005 /* ReportRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReportRepository.swift; sourceTree = "<group>"; };
 		ABB6DC2E100F9B52BDAC0387 /* DashboardScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardScreen.swift; sourceTree = "<group>"; };
 		AC764CE911F406DD10AAF6A8 /* PasswordValidator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PasswordValidator.swift; sourceTree = "<group>"; };
 		ACC6E038C6A4F7DB7612F6BE /* AppColors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppColors.swift; sourceTree = "<group>"; };
@@ -234,13 +234,13 @@
 		CCC1AE789E40C5A6FC37CFD6 /* SubtaskRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubtaskRepository.swift; sourceTree = "<group>"; };
 		CF4DF5749F5AE0397C6FB134 /* RegisterScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RegisterScreen.swift; sourceTree = "<group>"; };
 		D49F325E0CA24EDCC1183C38 /* CreateTaskUseCaseTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateTaskUseCaseTests.swift; sourceTree = "<group>"; };
+		D4E5F6071819A1B2C3D40001 /* CameraView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraView.swift; sourceTree = "<group>"; };
 		DEAC471237FC3361DE6B12DD /* UpdateProfileUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdateProfileUseCase.swift; sourceTree = "<group>"; };
 		E1B74B0ED3A5BC6F765B8291 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		E2E4AAF6754B9AC44F618F15 /* AppRouter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppRouter.swift; sourceTree = "<group>"; };
 		E3C48BD1DE74A3553B9CFB3A /* DeleteCommentUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeleteCommentUseCase.swift; sourceTree = "<group>"; };
 		E99278D144ADAC578B08460E /* LoginViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginViewModel.swift; sourceTree = "<group>"; };
 		EE2C278F41216262CD439AE8 /* ToastView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToastView.swift; sourceTree = "<group>"; };
-		D4E5F6071819A1B2C3D40001 /* CameraView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraView.swift; sourceTree = "<group>"; };
 		EFC243E9D0CB318A42C0DAD6 /* TaskCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskCard.swift; sourceTree = "<group>"; };
 		F03652072D4C9EF4D23720AC /* LoginScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginScreen.swift; sourceTree = "<group>"; };
 		F03D92B9DDDCCD967800A258 /* AvatarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AvatarView.swift; sourceTree = "<group>"; };

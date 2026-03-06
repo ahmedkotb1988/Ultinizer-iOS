@@ -307,12 +307,21 @@ struct ProfileScreen: View {
                     Text("Invite code: \(household.inviteCode)")
                         .font(AppTypography.labelMedium)
                         .foregroundColor(AppColors.textSecondary)
-                        .accessibilityLabel("Household invite code: \(household.inviteCode)")
+                        .lineLimit(1)
+                    Spacer()
+                    ShareLink(item: "Join my household on Ultinizer! Use invite code: \(household.inviteCode)") {
+                        Image(systemName: "square.and.arrow.up")
+                            .foregroundColor(AppColors.magenta500)
+                            .font(.system(size: 16))
+                    }
+                    .accessibilityLabel("Share invite code")
                 }
                 .padding(.horizontal, AppSpacing.lg)
                 .padding(.vertical, AppSpacing.md)
                 .background(colorScheme == .dark ? AppColors.gray700 : AppColors.gray50)
                 .clipShape(RoundedRectangle(cornerRadius: AppRadius.md))
+                .accessibilityElement(children: .combine)
+                .accessibilityLabel("Household invite code: \(household.inviteCode)")
 
                 ForEach(household.members) { member in
                     HStack(spacing: AppSpacing.md) {
