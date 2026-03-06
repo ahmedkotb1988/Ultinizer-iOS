@@ -18,32 +18,7 @@ struct CreateTaskScreen: View {
     }
 
     var body: some View {
-        VStack(spacing: 0) {
-            // Drag indicator
-            Capsule()
-                .fill(Color.secondary.opacity(0.3))
-                .frame(width: 36, height: 5)
-                .padding(.top, 8)
-                .padding(.bottom, 4)
-
-            // Header
-            HStack {
-                Button(action: { dismiss() }) {
-                    Image(systemName: "xmark")
-                        .font(.system(size: 20))
-                        .foregroundColor(AppColors.gray400)
-                }
-                Spacer()
-                Text("New Task")
-                    .font(AppTypography.heading)
-                    .foregroundColor(AppColors.textPrimary)
-                Spacer()
-                Color.clear.frame(width: 20)
-            }
-            .padding(.horizontal, AppSpacing.screenHorizontal)
-            .padding(.vertical, AppSpacing.md)
-            .overlay(Divider().foregroundColor(AppColors.borderPrimary), alignment: .bottom)
-
+        NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: 0) {
                     if viewModel.hasError {
@@ -218,11 +193,21 @@ struct CreateTaskScreen: View {
                 .padding(.top, AppSpacing.xl)
             }
             .scrollDismissesKeyboard(.interactively)
-        }
-        .background(AppColors.backgroundSecondary)
-        .presentationDragIndicator(.hidden)
-        .task {
-            await viewModel.loadFormData(household: authManager.household)
+            .navigationTitle("New Task")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button(action: { dismiss() }) {
+                        Image(systemName: "xmark")
+                            .font(.system(size: 16, weight: .medium))
+                            .foregroundColor(AppColors.gray400)
+                    }
+                }
+            }
+            .background(AppColors.backgroundSecondary)
+            .task {
+                await viewModel.loadFormData(household: authManager.household)
+            }
         }
     }
 
