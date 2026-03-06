@@ -1,0 +1,200 @@
+import SwiftUI
+
+@main
+struct UltinizerApp: App {
+    @State private var container = AppContainer()
+    @State private var themeManager = ThemeManager()
+    @State private var authManager: AuthManager?
+    @State private var router = AppRouter()
+
+    var body: some Scene {
+        WindowGroup {
+            Group {
+                if let authManager {
+                    RootView(
+                        container: container,
+                        authManager: authManager,
+                        router: router,
+                        themeManager: themeManager
+                    )
+                    .preferredColorScheme(themeManager.preferredColorScheme)
+                    .environment(\.themeManager, themeManager)
+                } else {
+                    LoadingView(message: "")
+                        .task {
+                            let manager = AuthManager(
+                                loginUseCase: container.loginUseCase,
+                                registerUseCase: container.registerUseCase,
+                                logoutUseCase: container.logoutUseCase,
+                                getMeUseCase: container.getMeUseCase,
+                                householdRepository: container.householdRepository,
+                                keychainService: container.keychainService,
+                                userDefaultsService: container.userDefaultsService
+                            )
+                            await manager.bootstrap()
+                            authManager = manager
+                        }
+                }
+            }
+        }
+    }
+}
+
+struct RootView: View {
+    let container: AppContainer
+    let authManager: AuthManager
+    let router: AppRouter
+    let themeManager: ThemeManager
+
+    var body: some View {
+        Group {
+            if authManager.isLoading {
+                LoadingView()
+            } else if !authManager.isAuthenticated {
+                AuthFlow(
+                    container: container,
+                    authManager: authManager,
+                    router: router
+                )
+            } else if authManager.household == nil {
+                HouseholdSetupScreen(authManager: authManager) {
+                    // Setup complete, household now set
+                }
+            } else {
+                MainTabView(
+                    container: container,
+                    authManager: authManager,
+                    router: router,
+                    themeManager: themeManager
+                )
+            }
+        }
+    }
+}
+
+// MARK: - Auth Flow
+
+struct AuthFlow: View {
+    let container: AppContainer
+    let authManager: AuthManager
+    @Bindable var router: AppRouter
+
+    var body: some View {
+        NavigationStack(path: $router.authPath) {
+            LoginScreen(authManager: authManager, router: router)
+                .navigationDestination(for: Route.self) { route in
+                    switch route {
+                    case .register:
+                        RegisterScreen(authManager: authManager, router: router)
+                    case .forgotPassword:
+                        ForgotPasswordScreen(forgotPasswordUseCase: container.forgotPasswordUseCase, router: router)
+                    case .householdSetup:
+                        HouseholdSetupScreen(authManager: authManager) {
+                            router.resetAll()
+                        }
+                    default:
+                        EmptyView()
+                    }
+                }
+        }
+    }
+}
+
+// MARK: - Main Tab View
+
+struct MainTabView: View {
+    let container: AppContainer
+    let authManager: AuthManager
+    @Bindable var router: AppRouter
+    let themeManager: ThemeManager
+
+    var body: some View {
+        TabView(selection: $router.selectedTab) {
+            // Dashboard Tab
+            NavigationStack(path: $router.dashboardPath) {
+                DashboardScreen(container: container, authManager: authManager, router: router)
+                    .navigationDestination(for: Route.self) { route in
+                        routeDestination(route)
+                    }
+            }
+            .tag(Tab.dashboard)
+            .tabItem {
+                Label(Tab.dashboard.title, systemImage: router.selectedTab == .dashboard ? Tab.dashboard.selectedIcon : Tab.dashboard.icon)
+            }
+
+            // Tasks Tab
+            NavigationStack(path: $router.tasksPath) {
+                TaskListScreen(container: container, router: router, authManager: authManager)
+                    .navigationDestination(for: Route.self) { route in
+                        routeDestination(route)
+                    }
+            }
+            .tag(Tab.tasks)
+            .tabItem {
+                Label(Tab.tasks.title, systemImage: router.selectedTab == .tasks ? Tab.tasks.selectedIcon : Tab.tasks.icon)
+            }
+
+            // Calendar Tab
+            NavigationStack(path: $router.calendarPath) {
+                CalendarScreen(container: container, router: router)
+                    .navigationDestination(for: Route.self) { route in
+                        routeDestination(route)
+                    }
+            }
+            .tag(Tab.calendar)
+            .tabItem {
+                Label(Tab.calendar.title, systemImage: router.selectedTab == .calendar ? Tab.calendar.selectedIcon : Tab.calendar.icon)
+            }
+
+            // Stats Tab
+            NavigationStack(path: $router.statsPath) {
+                StatisticsScreen(container: container)
+                    .navigationDestination(for: Route.self) { route in
+                        routeDestination(route)
+                    }
+            }
+            .tag(Tab.stats)
+            .tabItem {
+                Label(Tab.stats.title, systemImage: router.selectedTab == .stats ? Tab.stats.selectedIcon : Tab.stats.icon)
+            }
+
+            // Profile Tab
+            NavigationStack(path: $router.profilePath) {
+                ProfileScreen(authManager: authManager, router: router, container: container, themeManager: themeManager)
+                    .navigationDestination(for: Route.self) { route in
+                        routeDestination(route)
+                    }
+            }
+            .tag(Tab.profile)
+            .tabItem {
+                Label(Tab.profile.title, systemImage: router.selectedTab == .profile ? Tab.profile.selectedIcon : Tab.profile.icon)
+            }
+        }
+        .tint(AppColors.magenta500)
+        .sheet(isPresented: $router.showCreateTask) {
+            CreateTaskScreen(container: container, authManager: authManager, router: router)
+        }
+    }
+
+    @ViewBuilder
+    private func routeDestination(_ route: Route) -> some View {
+        switch route {
+        case .taskDetail(let id):
+            TaskDetailScreen(taskId: id, container: container, router: router)
+        case .createTask:
+            EmptyView() // Handled via sheet
+        case .editTask(let id):
+            CreateTaskScreen(container: container, authManager: authManager, router: router)
+        case .editProfile:
+            EditProfileScreen(authManager: authManager, updateProfileUseCase: container.updateProfileUseCase, router: router)
+        case .changePassword:
+            ChangePasswordScreen(changePasswordUseCase: container.changePasswordUseCase, router: router)
+        case .notifications:
+            NotificationsScreen(container: container, router: router)
+        case .statistics:
+            StatisticsScreen(container: container)
+        default:
+            EmptyView()
+        }
+    }
+}
