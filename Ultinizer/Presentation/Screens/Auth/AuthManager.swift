@@ -9,6 +9,7 @@ final class AuthManager {
     var isLoading = true
     var isAuthenticated: Bool { user != nil }
     var awaitingBiometric = false
+    var avatarVersion = 0
 
     private let loginUseCase: LoginUseCaseProtocol
     private let registerUseCase: RegisterUseCaseProtocol
@@ -183,6 +184,10 @@ final class AuthManager {
 
     func setHousehold(_ hh: Household?) {
         household = hh
+    }
+
+    func bumpAvatarVersion() {
+        avatarVersion += 1
     }
 
     private func cacheUser(_ user: User) {

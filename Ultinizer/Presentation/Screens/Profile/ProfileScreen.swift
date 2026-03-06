@@ -20,8 +20,6 @@ struct ProfileScreen: View {
     @State private var showCamera = false
     @State private var showPhotoPicker = false
     @State private var showCameraPermissionAlert = false
-    @State private var avatarCacheBuster = 0
-
     private let authManager: AuthManager
     private let router: AppRouter
     private let container: AppContainer
@@ -497,7 +495,8 @@ struct ProfileScreen: View {
     private var avatarURL: URL? {
         guard let urlString = authManager.user?.avatarUrl, !urlString.isEmpty else { return nil }
         let base = container.baseURL.absoluteString + urlString
-        return avatarCacheBuster > 0 ? URL(string: "\(base)?v=\(avatarCacheBuster)") : URL(string: base)
+        let v = authManager.avatarVersion
+        return v > 0 ? URL(string: "\(base)?v=\(v)") : URL(string: base)
     }
 
     private func uploadAvatar(item: PhotosPickerItem) async {
@@ -513,7 +512,7 @@ struct ProfileScreen: View {
                 mimeType: "image/jpeg"
             )
             await authManager.refreshUser()
-            avatarCacheBuster += 1
+            authManager.bumpAvatarVersion()
         } catch {
             // Silent failure
         }

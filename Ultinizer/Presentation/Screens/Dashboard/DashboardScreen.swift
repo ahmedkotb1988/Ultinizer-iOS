@@ -155,7 +155,9 @@ struct DashboardScreen: View {
 
     private var avatarURL: URL? {
         guard let urlString = authManager.user?.avatarUrl, !urlString.isEmpty else { return nil }
-        return URL(string: container.baseURL.absoluteString + urlString)
+        let base = container.baseURL.absoluteString + urlString
+        let v = authManager.avatarVersion
+        return v > 0 ? URL(string: "\(base)?v=\(v)") : URL(string: base)
     }
 
     private func sectionHeader(icon: String, title: String, iconColor: Color, titleColor: Color) -> some View {
