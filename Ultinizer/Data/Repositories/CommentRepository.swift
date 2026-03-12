@@ -28,7 +28,7 @@ final class CommentRepository: CommentRepositoryProtocol, @unchecked Sendable {
     }
 
     func deleteComment(taskId: String, commentId: String) async throws {
-        try await apiClient.request(endpoint: .comment(taskId: taskId, commentId: commentId))
+        try await apiClient.request(endpoint: .deleteComment(taskId: taskId, commentId: commentId))
     }
 
     func markCommentSeen(taskId: String, commentId: String) async throws {

@@ -19,6 +19,7 @@ final class AuthManager {
     private let keychainService: KeychainServiceProtocol
     private let userDefaultsService: UserDefaultsServiceProtocol
     private let authRepository: AuthRepositoryProtocol
+    private let pushNotificationService: PushNotificationServiceProtocol?
 
     init(
         loginUseCase: LoginUseCaseProtocol,
@@ -28,7 +29,8 @@ final class AuthManager {
         householdRepository: HouseholdRepositoryProtocol,
         keychainService: KeychainServiceProtocol,
         userDefaultsService: UserDefaultsServiceProtocol,
-        authRepository: AuthRepositoryProtocol
+        authRepository: AuthRepositoryProtocol,
+        pushNotificationService: PushNotificationServiceProtocol? = nil
     ) {
         self.loginUseCase = loginUseCase
         self.registerUseCase = registerUseCase
@@ -38,6 +40,7 @@ final class AuthManager {
         self.keychainService = keychainService
         self.userDefaultsService = userDefaultsService
         self.authRepository = authRepository
+        self.pushNotificationService = pushNotificationService
     }
 
     func bootstrap() async {
@@ -78,6 +81,9 @@ final class AuthManager {
                     // No household or error - that's ok
                 }
             }
+
+            // Register for push notifications
+            await pushNotificationService?.requestPermissionAndRegister()
         } catch {
             // Token invalid or network error
             user = nil
@@ -116,6 +122,9 @@ final class AuthManager {
         } catch {
             // Network error — keep cached user/household if we have them
         }
+
+        // Register for push notifications
+        await pushNotificationService?.requestPermissionAndRegister()
     }
 
     func login(email: String, password: String) async throws -> LoginResult {
@@ -124,6 +133,7 @@ final class AuthManager {
         household = result.household
         cacheUser(result.user)
         if let hh = result.household { cacheHousehold(hh) }
+        await pushNotificationService?.requestPermissionAndRegister()
         return result
     }
 
@@ -133,10 +143,12 @@ final class AuthManager {
         household = result.household
         cacheUser(result.user)
         if let hh = result.household { cacheHousehold(hh) }
+        await pushNotificationService?.requestPermissionAndRegister()
         return result
     }
 
     func logout() async {
+        await pushNotificationService?.unregisterDevice()
         try? await logoutUseCase.execute()
         user = nil
         household = nil
@@ -147,6 +159,7 @@ final class AuthManager {
     }
 
     func deleteAccount(password: String) async throws {
+        await pushNotificationService?.unregisterDevice()
         try await authRepository.deleteAccount(password: password)
         user = nil
         household = nil

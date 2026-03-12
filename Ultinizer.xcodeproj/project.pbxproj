@@ -120,6 +120,7 @@
 		F7757B9148220AADB02284D1 /* UserMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AD47EFFFBD7A2110D2B9DD9 /* UserMapper.swift */; };
 		FCBE90B153154FB47992ED3D /* LoadingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9ABE697C88841CE1F584C048 /* LoadingView.swift */; };
 		FEDCF657D0630AC717CE95B0 /* GetNotificationsUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 886431198B99816217140220 /* GetNotificationsUseCase.swift */; };
+		PUSH0001AAAA000000000001 /* PushNotificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = PUSH0002AAAA000000000001 /* PushNotificationService.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -249,6 +250,7 @@
 		F937CC6A775A2C1CD423E65A /* StatsRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatsRepository.swift; sourceTree = "<group>"; };
 		FB0DE03EDB39E3FE1B6DC48F /* TaskStatusBadge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskStatusBadge.swift; sourceTree = "<group>"; };
 		FC6141DF19AFD30ECFB71E60 /* Household.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Household.swift; sourceTree = "<group>"; };
+		PUSH0002AAAA000000000001 /* PushNotificationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushNotificationService.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
@@ -497,6 +499,7 @@
 		55C428344C817C874547295D /* PushNotifications */ = {
 			isa = PBXGroup;
 			children = (
+				PUSH0002AAAA000000000001 /* PushNotificationService.swift */,
 			);
 			path = PushNotifications;
 			sourceTree = "<group>";
@@ -882,6 +885,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				PUSH0001AAAA000000000001 /* PushNotificationService.swift in Sources */,
 				78CC3BECCD57F907D593A5D1 /* APIClient.swift in Sources */,
 				843EE76454D06DDEE2247103 /* APIEndpoints.swift in Sources */,
 				9EF34539B9665F7C6BEC1A61 /* APIError.swift in Sources */,
@@ -1176,8 +1180,10 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = Ultinizer/Resources/Ultinizer.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 4;
 				DEVELOPMENT_TEAM = 565M5HXL26;
 				INFOPLIST_FILE = Ultinizer/Resources/Info.plist;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.lifestyle";
@@ -1185,6 +1191,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
+				MARKETING_VERSION = 1.0.0;
 				PRODUCT_BUNDLE_IDENTIFIER = cloud.ultinizer.app;
 				SDKROOT = iphoneos;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
@@ -1200,8 +1207,10 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = Ultinizer/Resources/Ultinizer.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 4;
 				DEVELOPMENT_TEAM = 565M5HXL26;
 				INFOPLIST_FILE = Ultinizer/Resources/Info.plist;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.lifestyle";
@@ -1209,6 +1218,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
+				MARKETING_VERSION = 1.0.0;
 				PRODUCT_BUNDLE_IDENTIFIER = cloud.ultinizer.app;
 				SDKROOT = iphoneos;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";

@@ -91,12 +91,12 @@ final class TaskRepository: TaskRepositoryProtocol, @unchecked Sendable {
                 )
             }
         )
-        let dto: TaskDTO = try await apiClient.request(endpoint: .task(id: id), body: request)
+        let dto: TaskDTO = try await apiClient.request(endpoint: .updateTask(id: id), body: request)
         return TaskMapper.map(dto)
     }
 
     func deleteTask(id: String) async throws {
-        try await apiClient.request(endpoint: .task(id: id))
+        try await apiClient.request(endpoint: .deleteTask(id: id))
     }
 
     func reorderTasks(tasks: [(id: String, sortOrder: Int)]) async throws {

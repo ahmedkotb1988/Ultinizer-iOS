@@ -28,6 +28,10 @@ final class AppContainer: @unchecked Sendable {
     let attachmentRepository: AttachmentRepositoryProtocol
     let reportRepository: ReportRepositoryProtocol
 
+    // MARK: - Services
+
+    let pushNotificationService: PushNotificationService
+
     // MARK: - Use Cases: Auth
 
     let loginUseCase: LoginUseCaseProtocol
@@ -88,6 +92,9 @@ final class AppContainer: @unchecked Sendable {
         self.statsRepository = StatsRepository(apiClient: apiClient)
         self.attachmentRepository = AttachmentRepository(apiClient: apiClient)
         self.reportRepository = ReportRepository(apiClient: apiClient)
+
+        // Services
+        self.pushNotificationService = PushNotificationService(apiClient: apiClient)
 
         // Use Cases: Auth
         self.loginUseCase = LoginUseCase(authRepository: authRepo)

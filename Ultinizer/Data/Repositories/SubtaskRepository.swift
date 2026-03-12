@@ -26,6 +26,6 @@ final class SubtaskRepository: SubtaskRepositoryProtocol, @unchecked Sendable {
     }
 
     func deleteSubtask(taskId: String, subtaskId: String) async throws {
-        try await apiClient.request(endpoint: .subtask(taskId: taskId, subtaskId: subtaskId))
+        try await apiClient.request(endpoint: .deleteSubtask(taskId: taskId, subtaskId: subtaskId))
     }
 }

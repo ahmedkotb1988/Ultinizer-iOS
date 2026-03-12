@@ -24,6 +24,12 @@ struct ProfileScreen: View {
     @State private var showChangePassword = false
     @State private var showNotifications = false
 
+    // RSS Feed
+    @State private var feedURL: String?
+    @State private var hasToken = false
+    @State private var isFeedLoading = false
+    @State private var showRevokeFeedAlert = false
+
     private let authManager: AuthManager
     private let router: AppRouter
     private let container: AppContainer
@@ -151,6 +157,10 @@ struct ProfileScreen: View {
                 .accessibilityAddTraits(.isButton)
                 .padding(.bottom, AppSpacing.xl)
 
+                // RSS Feed
+                rssFeedCard
+                    .padding(.bottom, AppSpacing.xl)
+
                 // Legal section
                 legalCard
                     .padding(.bottom, AppSpacing.xl)
@@ -236,6 +246,15 @@ struct ProfileScreen: View {
             }
             biometricEnabled = container.userDefaultsService.getBool(forKey: UserDefaultsService.Keys.biometricEnabled)
             biometricLoaded = true
+            await loadFeedToken()
+        }
+        .alert("Revoke Feed URL?", isPresented: $showRevokeFeedAlert) {
+            Button("Cancel", role: .cancel) {}
+            Button("Revoke", role: .destructive) {
+                Task { await revokeFeedToken() }
+            }
+        } message: {
+            Text("This will invalidate your current feed URL. Any apps using it will no longer receive updates.")
         }
         .confirmationDialog("Change Profile Photo", isPresented: $showPhotoSourceSheet, titleVisibility: .visible) {
             Button("Take Photo") {
@@ -491,6 +510,108 @@ struct ProfileScreen: View {
         }
     }
 
+    private var rssFeedCard: some View {
+        CardView {
+            VStack(alignment: .leading, spacing: AppSpacing.lg) {
+                Text("RSS Feed")
+                    .font(AppTypography.labelSemiBold)
+                    .foregroundColor(AppColors.textSecondary)
+                    .accessibilityAddTraits(.isHeader)
+
+                if let feedURL, hasToken {
+                    HStack(spacing: AppSpacing.md) {
+                        Image(systemName: "link")
+                            .foregroundColor(AppColors.magenta500)
+                            .font(.system(size: 16))
+                            .accessibilityHidden(true)
+                        Text(feedURL)
+                            .font(AppTypography.caption)
+                            .foregroundColor(AppColors.textSecondary)
+                            .lineLimit(1)
+                            .truncationMode(.middle)
+                        Spacer()
+                        ShareLink(item: feedURL) {
+                            Image(systemName: "doc.on.doc")
+                                .foregroundColor(AppColors.magenta500)
+                                .font(.system(size: 16))
+                        }
+                        .accessibilityLabel("Copy feed URL")
+                    }
+                    .padding(.horizontal, AppSpacing.lg)
+                    .padding(.vertical, AppSpacing.md)
+                    .background(colorScheme == .dark ? AppColors.gray700 : AppColors.gray50)
+                    .clipShape(RoundedRectangle(cornerRadius: AppRadius.md))
+
+                    HStack(spacing: AppSpacing.sm) {
+                        Image(systemName: "exclamationmark.triangle")
+                            .foregroundColor(AppColors.yellow500)
+                            .font(.system(size: 12))
+                            .accessibilityHidden(true)
+                        Text("This URL provides access to your tasks. Don't share it publicly.")
+                            .font(AppTypography.caption)
+                            .foregroundColor(AppColors.gray500)
+                    }
+
+                    Divider().foregroundColor(AppColors.borderPrimary)
+
+                    Button(action: { Task { await generateFeedToken() } }) {
+                        HStack {
+                            HStack(spacing: AppSpacing.lg) {
+                                Image(systemName: "arrow.clockwise")
+                                    .foregroundColor(AppColors.magenta500)
+                                    .accessibilityHidden(true)
+                                Text("Regenerate Feed URL")
+                                    .font(AppTypography.body)
+                                    .foregroundColor(AppColors.textSecondary)
+                            }
+                            Spacer()
+                            if isFeedLoading {
+                                ProgressView()
+                                    .tint(AppColors.magenta500)
+                            }
+                        }
+                    }
+                    .disabled(isFeedLoading)
+                    .accessibilityLabel("Regenerate Feed URL")
+
+                    Divider().foregroundColor(AppColors.borderPrimary)
+
+                    Button(action: { showRevokeFeedAlert = true }) {
+                        HStack(spacing: AppSpacing.lg) {
+                            Image(systemName: "trash")
+                                .foregroundColor(AppColors.red500)
+                                .accessibilityHidden(true)
+                            Text("Revoke Feed URL")
+                                .font(AppTypography.body)
+                                .foregroundColor(AppColors.red500)
+                        }
+                    }
+                    .accessibilityLabel("Revoke Feed URL")
+                } else {
+                    Button(action: { Task { await generateFeedToken() } }) {
+                        HStack {
+                            HStack(spacing: AppSpacing.lg) {
+                                Image(systemName: "plus.circle")
+                                    .foregroundColor(AppColors.magenta500)
+                                    .accessibilityHidden(true)
+                                Text("Generate Feed URL")
+                                    .font(AppTypography.body)
+                                    .foregroundColor(AppColors.textSecondary)
+                            }
+                            Spacer()
+                            if isFeedLoading {
+                                ProgressView()
+                                    .tint(AppColors.magenta500)
+                            }
+                        }
+                    }
+                    .disabled(isFeedLoading)
+                    .accessibilityLabel("Generate Feed URL")
+                }
+            }
+        }
+    }
+
     private func legalRow(icon: String, title: String, url: String) -> some View {
         Button(action: {
             safariURL = URL(string: url)
@@ -565,6 +686,57 @@ struct ProfileScreen: View {
             showPasswordPrompt = true
         }
     }
+
+    // MARK: - RSS Feed
+
+    @MainActor
+    private func loadFeedToken() async {
+        do {
+            let response: FeedTokenResponseDTO = try await container.apiClient.request(endpoint: .feedToken)
+            hasToken = response.hasToken
+            feedURL = response.feedUrl
+        } catch {
+            // Silent failure — section will show "Generate" state
+        }
+    }
+
+    @MainActor
+    private func generateFeedToken() async {
+        isFeedLoading = true
+        defer { isFeedLoading = false }
+        do {
+            let response: FeedGenerateResponseDTO = try await container.apiClient.request(endpoint: .generateFeedToken)
+            hasToken = true
+            feedURL = response.feedUrl
+        } catch {
+            // Silent failure
+        }
+    }
+
+    @MainActor
+    private func revokeFeedToken() async {
+        isFeedLoading = true
+        defer { isFeedLoading = false }
+        do {
+            let _: MessageResponseDTO = try await container.apiClient.request(endpoint: .revokeFeedToken)
+            hasToken = false
+            feedURL = nil
+        } catch {
+            // Silent failure
+        }
+    }
+}
+
+// MARK: - Feed DTOs
+
+struct FeedTokenResponseDTO: Decodable {
+    let hasToken: Bool
+    let feedUrl: String?
+}
+
+struct FeedGenerateResponseDTO: Decodable {
+    let token: String
+    let feedUrl: String
 }
 
 // MARK: - Safari View

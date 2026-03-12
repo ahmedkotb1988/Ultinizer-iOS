@@ -25,6 +25,8 @@ enum APIEndpoint {
     case getTasks
     case createTask
     case task(id: String)
+    case updateTask(id: String)
+    case deleteTask(id: String)
     case reorderTasks
     case taskTemplates
 
@@ -32,11 +34,13 @@ enum APIEndpoint {
     case getSubtasks(taskId: String)
     case createSubtask(taskId: String)
     case subtask(taskId: String, subtaskId: String)
+    case deleteSubtask(taskId: String, subtaskId: String)
 
     // Comments
     case getComments(taskId: String)
     case createComment(taskId: String)
     case comment(taskId: String, commentId: String)
+    case deleteComment(taskId: String, commentId: String)
     case markCommentSeen(taskId: String, commentId: String)
 
     // Categories
@@ -64,8 +68,14 @@ enum APIEndpoint {
     // Account
     case deleteAccount
 
-    // Push token
-    case pushToken
+    // Feed
+    case feedToken
+    case generateFeedToken
+    case revokeFeedToken
+
+    // Push Notifications
+    case registerDevice
+    case unregisterDevice
 
     var path: String {
         switch self {
@@ -93,6 +103,8 @@ enum APIEndpoint {
         case .getTasks: return "/api/tasks"
         case .createTask: return "/api/tasks"
         case .task(let id): return "/api/tasks/\(id)"
+        case .updateTask(let id): return "/api/tasks/\(id)"
+        case .deleteTask(let id): return "/api/tasks/\(id)"
         case .reorderTasks: return "/api/tasks/reorder"
         case .taskTemplates: return "/api/tasks/templates"
 
@@ -100,11 +112,13 @@ enum APIEndpoint {
         case .getSubtasks(let taskId): return "/api/tasks/\(taskId)/subtasks"
         case .createSubtask(let taskId): return "/api/tasks/\(taskId)/subtasks"
         case .subtask(let taskId, let subtaskId): return "/api/tasks/\(taskId)/subtasks/\(subtaskId)"
+        case .deleteSubtask(let taskId, let subtaskId): return "/api/tasks/\(taskId)/subtasks/\(subtaskId)"
 
         // Comments
         case .getComments(let taskId): return "/api/tasks/\(taskId)/comments"
         case .createComment(let taskId): return "/api/tasks/\(taskId)/comments"
         case .comment(let taskId, let commentId): return "/api/tasks/\(taskId)/comments/\(commentId)"
+        case .deleteComment(let taskId, let commentId): return "/api/tasks/\(taskId)/comments/\(commentId)"
         case .markCommentSeen(let taskId, let commentId): return "/api/tasks/\(taskId)/comments/\(commentId)/seen"
 
         // Categories
@@ -132,8 +146,14 @@ enum APIEndpoint {
         // Account
         case .deleteAccount: return "/api/auth/me"
 
-        // Push
-        case .pushToken: return "/api/users/push-token"
+        // Feed
+        case .feedToken: return "/api/feed/token"
+        case .generateFeedToken: return "/api/feed/generate-token"
+        case .revokeFeedToken: return "/api/feed/revoke-token"
+
+        // Push Notifications
+        case .registerDevice: return "/api/notifications/register-device"
+        case .unregisterDevice: return "/api/notifications/unregister-device"
         }
     }
 
@@ -146,18 +166,22 @@ enum APIEndpoint {
              .createCategory,
              .uploadAttachment, .uploadAvatar,
              .markCommentSeen, .markAllNotificationsRead,
-             .pushToken, .reorderTasks, .createReport:
+             .registerDevice, .reorderTasks, .createReport,
+             .generateFeedToken:
             return .POST
         case .me, .myHousehold, .task, .taskTemplates,
              .getTasks, .getSubtasks, .getComments,
              .getCategories,
              .notifications, .notificationPreferences,
-             .dashboardStats, .overviewStats:
+             .dashboardStats, .overviewStats,
+             .feedToken:
             return .GET
-        case .updateMe, .subtask, .comment, .category,
+        case .updateMe, .updateTask, .subtask, .comment, .category,
              .markNotificationRead:
             return .PATCH
-        case .deleteAttachment, .deleteAccount:
+        case .deleteTask, .deleteSubtask, .deleteComment,
+             .deleteAttachment, .deleteAccount, .unregisterDevice,
+             .revokeFeedToken:
             return .DELETE
         }
     }

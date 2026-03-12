@@ -1,7 +1,9 @@
 import SwiftUI
+import UserNotifications
 
 @main
 struct UltinizerApp: App {
+    @UIApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
     @State private var container = AppContainer()
     @State private var themeManager = ThemeManager()
     @State private var authManager: AuthManager?
@@ -19,9 +21,23 @@ struct UltinizerApp: App {
                     )
                     .preferredColorScheme(themeManager.preferredColorScheme)
                     .environment(\.themeManager, themeManager)
+                    .onChange(of: container.pushNotificationService.pendingDeepLinkTaskId) { _, taskId in
+                        if let taskId {
+                            router.selectedTab = .tasks
+                            router.tasksPath = NavigationPath()
+                            router.navigate(to: .taskDetail(id: taskId))
+                            container.pushNotificationService.pendingDeepLinkTaskId = nil
+                        }
+                    }
                 } else {
                     LoadingView(message: "")
                         .task {
+                            // Wire up the AppDelegate to forward tokens to PushNotificationService
+                            appDelegate.pushNotificationService = container.pushNotificationService
+
+                            // Set UNUserNotificationCenter delegate
+                            UNUserNotificationCenter.current().delegate = container.pushNotificationService
+
                             let manager = AuthManager(
                                 loginUseCase: container.loginUseCase,
                                 registerUseCase: container.registerUseCase,
@@ -30,7 +46,8 @@ struct UltinizerApp: App {
                                 householdRepository: container.householdRepository,
                                 keychainService: container.keychainService,
                                 userDefaultsService: container.userDefaultsService,
-                                authRepository: container.authRepository
+                                authRepository: container.authRepository,
+                                pushNotificationService: container.pushNotificationService
                             )
                             await manager.bootstrap()
                             authManager = manager
@@ -38,6 +55,28 @@ struct UltinizerApp: App {
                 }
             }
         }
+    }
+}
+
+// MARK: - App Delegate
+
+final class AppDelegate: NSObject, UIApplicationDelegate {
+    var pushNotificationService: PushNotificationService?
+
+    func application(
+        _ application: UIApplication,
+        didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data
+    ) {
+        Task { @MainActor in
+            await pushNotificationService?.registerDeviceToken(deviceToken)
+        }
+    }
+
+    func application(
+        _ application: UIApplication,
+        didFailToRegisterForRemoteNotificationsWithError error: Error
+    ) {
+        print("[Push] Failed to register for remote notifications: \(error)")
     }
 }
 
